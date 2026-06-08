@@ -35,13 +35,16 @@
     inset:0;
     z-index:0;
     pointer-events:none;
-    background:
-      radial-gradient(circle at center, rgba(255,255,255,.105) 0%, rgba(255,255,255,.035) 34%, transparent 64%),
-      radial-gradient(circle at center, rgba(255,255,255,.04) 0 1px, transparent 1.5px);
-    background-repeat:no-repeat, repeat;
-    background-position:center center, center center;
-    background-size:min(64vw,780px) min(64vw,780px), 22px 22px;
-    opacity:.16;
+    background-image:
+      url('assets/logo-virtus-bg-fina.png'),
+      radial-gradient(circle at center, rgba(255,255,255,.055) 0%, rgba(255,255,255,.018) 32%, transparent 63%),
+      radial-gradient(circle at center, rgba(255,255,255,.020) 0 1px, transparent 1.35px);
+    background-repeat:no-repeat, no-repeat, repeat;
+    background-position:center center, center center, center center;
+    background-size:min(24vw,315px) auto, min(54vw,620px) min(54vw,620px), 24px 24px;
+    opacity:.115;
+    filter:grayscale(1) saturate(.18);
+    transform:translate3d(0,0,0);
   }
   body::after{
     content:"";
@@ -49,7 +52,9 @@
     inset:0;
     z-index:0;
     pointer-events:none;
-    background:radial-gradient(circle at center, rgba(0,0,0,.05) 0%, rgba(0,0,0,.14) 46%, rgba(0,0,0,.58) 100%);
+    background:
+      radial-gradient(circle at center, rgba(0,0,0,.08) 0%, rgba(0,0,0,.28) 50%, rgba(0,0,0,.74) 100%),
+      linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.34));
   }
   body > .flex{position:relative;z-index:1;}
   #modal-tx, #modal-dre, #modal-anual-summary, #modal-kpi-chart{position:fixed !important;z-index:50 !important;}
@@ -107,8 +112,8 @@
 
   /* Fundo translúcido para a logo aparecer atrás dos gráficos */
   main, .tab-content{position:relative;z-index:1;}
-  .card:has(.apexcharts-canvas){
-    background:rgba(10,10,10,.50);
+  .card.chart-card{
+    background:rgba(10,10,10,.44);
     backdrop-filter:blur(1.5px);
   }
   .apexcharts-canvas,
@@ -127,7 +132,7 @@
   }
   .apexcharts-tooltip-title{background:rgba(255,255,255,.04) !important;border-bottom-color:rgba(255,255,255,.1) !important;}
   .apexcharts-gridline{stroke:rgba(255,255,255,.075) !important;}
-  table thead{backdrop-filter:blur(4px);}
+  table thead{backdrop-filter:none;}
 
   .modal-filter-pill{
     display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;
@@ -209,7 +214,7 @@
     border:1px solid rgba(255,255,255,.14);
     background:linear-gradient(180deg,rgba(18,18,18,.98),rgba(7,7,7,.98));
     box-shadow:0 26px 70px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.06);
-    backdrop-filter:blur(18px);
+    backdrop-filter:blur(8px);
   }
   .category-select-menu.hidden{display:none !important;}
   .category-select-search{
@@ -562,7 +567,7 @@
   /* Card minimalista — borda 1px sólida */
   .card{
     position:relative;
-    background:rgba(10,10,10,.68);
+    background:rgba(10,10,10,.62);
     border-radius:.5rem;
     border:1px solid rgba(255,255,255,.09);
     box-shadow:0 18px 45px rgba(0,0,0,.22);
@@ -695,7 +700,7 @@
     color:#fff;display:flex;align-items:center;justify-content:center;
     box-shadow:0 22px 55px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.1);
     cursor:pointer;transition:.16s ease;font-weight:800;letter-spacing:-.04em;
-    backdrop-filter:blur(10px);
+    backdrop-filter:blur(6px);
   }
   .ai-chat-toggle:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.32);background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.08));}
   .ai-chat-toggle span{font-size:1.05rem;}
@@ -705,7 +710,7 @@
     width:min(430px,calc(100vw - 28px));height:min(680px,calc(100vh - 120px));
     border:1px solid rgba(255,255,255,.12);border-radius:22px;
     background:rgba(8,8,8,.92);box-shadow:0 28px 85px rgba(0,0,0,.56);
-    backdrop-filter:blur(18px);overflow:hidden;display:flex;flex-direction:column;
+    backdrop-filter:blur(8px);overflow:hidden;display:flex;flex-direction:column;
   }
   .ai-chat-panel.hidden{display:none !important;}
   .ai-chat-head{padding:16px 16px 14px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,0));}
@@ -755,13 +760,13 @@
   #modal-anual-summary .annual-summary-table td{padding:.52rem .5rem; font-size:.72rem; line-height:1.2; white-space:nowrap;}
   #modal-anual-summary .annual-summary-table th{font-size:.63rem;}
   #modal-anual-summary .annual-summary-table th:first-child,
-  #modal-anual-summary .annual-summary-table td:first-child{width:13%;}
-  #modal-anual-summary .annual-summary-table th:nth-child(n+2):nth-child(-n+7),
-  #modal-anual-summary .annual-summary-table td:nth-child(n+2):nth-child(-n+7){width:12%; text-align:right;}
-  #modal-anual-summary .annual-summary-table th:nth-child(8),
-  #modal-anual-summary .annual-summary-table td:nth-child(8),
+  #modal-anual-summary .annual-summary-table td:first-child{width:12%;}
+  #modal-anual-summary .annual-summary-table th:nth-child(n+2):nth-child(-n+8),
+  #modal-anual-summary .annual-summary-table td:nth-child(n+2):nth-child(-n+8){width:10.5%; text-align:right;}
   #modal-anual-summary .annual-summary-table th:nth-child(9),
-  #modal-anual-summary .annual-summary-table td:nth-child(9){width:7.5%; text-align:right;}
+  #modal-anual-summary .annual-summary-table td:nth-child(9),
+  #modal-anual-summary .annual-summary-table th:nth-child(10),
+  #modal-anual-summary .annual-summary-table td:nth-child(10){width:7.25%; text-align:right;}
   #modal-anual-summary .annual-summary-table .annual-invest-btn,
   #modal-anual-summary .annual-summary-table .annual-invest-cell-btn{
     appearance:none; border:none; background:none; color:inherit; padding:0; margin:0; width:100%; text-align:inherit; cursor:pointer;
@@ -769,3 +774,177 @@
   #modal-anual-summary .annual-summary-table .annual-invest-btn{font-weight:700; text-align:left;}
   #modal-anual-summary .annual-summary-table .annual-invest-btn:hover,
   #modal-anual-summary .annual-summary-table .annual-invest-cell-btn:hover{text-decoration:underline;}
+
+/* Tooltip seguro do gráfico Investimentos x ROI */
+#chart-investimentos .apexcharts-tooltip{
+  max-width:260px !important;
+  white-space:normal !important;
+  overflow:hidden !important;
+  border-radius:12px !important;
+}
+.safe-chart-tooltip{
+  min-width:210px;
+  max-width:252px;
+  padding:.72rem .78rem;
+  background:rgba(12,12,12,.96);
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 16px 40px rgba(0,0,0,.38);
+  color:#f5f5f5;
+  font-family:'Sora',ui-sans-serif,system-ui,sans-serif;
+}
+.safe-chart-tooltip-month{
+  color:#a3a3a3;
+  font-size:.68rem;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  margin-bottom:.5rem;
+}
+.safe-chart-tooltip-row{
+  display:grid;
+  grid-template-columns:10px 1fr auto;
+  align-items:center;
+  gap:.46rem;
+  font-size:.72rem;
+  line-height:1.2;
+}
+.safe-chart-tooltip-row strong{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.72rem;
+  color:#fff;
+  white-space:nowrap;
+}
+.safe-chart-tooltip-dot{
+  width:9px;
+  height:9px;
+  border-radius:999px;
+  display:inline-block;
+}
+.safe-chart-tooltip-source{
+  margin-top:.48rem;
+  padding-top:.48rem;
+  border-top:1px solid rgba(255,255,255,.08);
+  color:#737373;
+  font-size:.62rem;
+  line-height:1.25;
+}
+
+/* =========================================================
+   Motion refinado dos gráficos — modo performance
+   ========================================================= */
+[id^="chart-"],
+#modal-kpi-chart-graph,
+#modal-dre-chart,
+#modal-tx-chart{
+  transform:translateZ(0);
+  contain:layout paint;
+}
+
+[id^="chart-"] .apexcharts-canvas,
+#modal-kpi-chart-graph .apexcharts-canvas,
+#modal-dre-chart .apexcharts-canvas,
+#modal-tx-chart .apexcharts-canvas,
+[id^="chart-"] .apexcharts-svg,
+#modal-kpi-chart-graph .apexcharts-svg,
+#modal-dre-chart .apexcharts-svg,
+#modal-tx-chart .apexcharts-svg{
+  transform:translateZ(0);
+  will-change:auto;
+  transition:opacity .14s cubic-bezier(.16,1,.3,1), transform .14s cubic-bezier(.16,1,.3,1);
+}
+
+.chart-soft-enter .apexcharts-canvas,
+.chart-soft-enter .apexcharts-svg,
+.chart-soft-ready .apexcharts-canvas,
+.chart-soft-ready .apexcharts-svg{
+  animation:none !important;
+}
+.chart-soft-update .apexcharts-canvas,
+.chart-soft-update .apexcharts-svg{
+  opacity:.98;
+}
+.chart-soft-exit .apexcharts-canvas,
+.chart-soft-exit .apexcharts-svg{
+  opacity:.72;
+  transform:translateY(2px) translateZ(0);
+}
+.chart-series-switching .apexcharts-canvas,
+.chart-series-switching .apexcharts-svg{
+  opacity:.94;
+  transform:translateZ(0);
+}
+
+.apexcharts-series,
+.apexcharts-bar-area,
+.apexcharts-line-series path,
+.apexcharts-area-series path,
+.apexcharts-marker,
+.apexcharts-point-annotation-marker{
+  transition:opacity .14s cubic-bezier(.16,1,.3,1) !important;
+}
+
+.apexcharts-tooltip,
+.safe-chart-tooltip{
+  transition:opacity .12s cubic-bezier(.16,1,.3,1), transform .12s cubic-bezier(.16,1,.3,1) !important;
+  will-change:auto;
+}
+
+.apexcharts-legend-series,
+.chart-custom-legend button,
+.nav-item,
+.chip-btn,
+.card,
+.card-flat,
+select,
+input,
+button{
+  transition-duration:.14s !important;
+  transition-timing-function:cubic-bezier(.16,1,.3,1) !important;
+}
+
+.apexcharts-legend-series:active,
+.chart-custom-legend button:active,
+.chart-custom-legend button.is-toggling{
+  transform:scale(.99) translateY(0) !important;
+}
+
+.chart-custom-legend button:disabled{
+  cursor:wait;
+  pointer-events:none;
+}
+
+.card.chart-card{
+  transition:border-color .16s cubic-bezier(.16,1,.3,1), background .16s cubic-bezier(.16,1,.3,1), box-shadow .16s cubic-bezier(.16,1,.3,1), transform .16s cubic-bezier(.16,1,.3,1) !important;
+}
+.card.chart-card:hover{
+  transform:translateY(-1px);
+  border-color:rgba(255,255,255,.15);
+}
+
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    scroll-behavior:auto !important;
+    transition-duration:.001ms !important;
+  }
+}
+
+.apexcharts-legend-series.is-toggling{
+  transform:scale(.99) translateY(0) !important;
+  opacity:.88 !important;
+}
+
+
+/* Modo performance: menos blur fixo e menos custo de composição em telas com muitos gráficos. */
+html.perf-mode .card.chart-card,
+html.perf-mode .card-flat,
+html.perf-mode .ai-chat-panel,
+html.perf-mode .ai-chat-toggle,
+html.perf-mode .category-select-menu{
+  backdrop-filter:none !important;
+}
+html.perf-mode .apexcharts-canvas,
+html.perf-mode .apexcharts-svg{
+  will-change:auto !important;
+}

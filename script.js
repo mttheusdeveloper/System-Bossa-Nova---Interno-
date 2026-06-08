@@ -18,6 +18,20 @@ const MONTHS = [
   { key:'dezembro',  short:'Dez', label:'Dezembro',  table:'Caixa Dezembro',  dreCols:['dezembro','dez'],        drePctCols:['dez_pct','dezembro_pct'] }
 ];
 
+// Meses disponíveis no dashboard: somente os meses já passados e o mês atual.
+// Em junho, por exemplo, o sistema puxa/mostra Janeiro até Junho e ignora Julho-Dezembro.
+const CURRENT_MONTH_LIMIT_INDEX = Math.min(11, Math.max(0, new Date().getMonth()));
+const ACTIVE_MONTHS = MONTHS.slice(0, CURRENT_MONTH_LIMIT_INDEX + 1);
+const ACTIVE_MONTH_KEYS = new Set(ACTIVE_MONTHS.map(m => m.key));
+function isActiveMonthIndex(index){ return index >= 0 && index <= CURRENT_MONTH_LIMIT_INDEX; }
+function isActiveMonthKey(key){ return ACTIVE_MONTH_KEYS.has(monthCfg(key)?.key || String(key || '').toLowerCase()); }
+function clampAnualRange(){
+  if(!state?.anual) return;
+  state.anual.mMin = Math.min(Math.max(Number(state.anual.mMin) || 0, 0), CURRENT_MONTH_LIMIT_INDEX);
+  state.anual.mMax = Math.min(Math.max(Number(state.anual.mMax) || CURRENT_MONTH_LIMIT_INDEX, 0), CURRENT_MONTH_LIMIT_INDEX);
+  if(state.anual.mMin > state.anual.mMax) state.anual.mMin = state.anual.mMax;
+}
+
 const TABLES = Object.assign(
   Object.fromEntries(MONTHS.map(m => [m.key, m.table])),
   { anual:'Financeiro 2026', dre:'dre' }
@@ -28,6 +42,14 @@ const A = {
   eb:'ebtida', custos:'custos_operacionais', inv:'investimentos',
   roi:'roi', endiv:'endividamento', lucro:'lucratividade', cresc:'percentual_crescimento'
 };
+// Fonte oficial do ROI: tabela Financeiro 2026, coluna roi.
+// As variações abaixo servem só como compatibilidade caso o Supabase retorne capitalização diferente.
+const ROI_FIELD_KEYS = [
+  'ROI', A.roi, 'roi', 'Roi', 'R.O.I', 'r.o.i',
+  'Retorno sobre Investimento', 'retorno_sobre_investimento', 'retorno sobre investimento',
+  'Retorno Investimento', 'retorno_investimento',
+  'Retorno dos Investimentos', 'retorno_dos_investimentos'
+];
 // Campos financeiros que indicam que o mês realmente tem dados consolidados.
 // Não uso lucratividade/crescimento aqui porque fórmulas de meses vazios podem virar 0% ou -100% e parecerem bugs no gráfico.
 const ANUAL_VALUE_KEYS = [A.fb, A.fl, A.caixa, A.eb, A.custos, A.inv, A.roi, A.endiv];
@@ -43,6 +65,9 @@ const CHART_THEME = {
   cost:'#f0ab7a',
   muted:'#a1a1aa'
 };
+
+const PERFORMANCE_MODE = true;
+const UI_RENDER_CHUNK_SIZE = 320;
 
 const LUCRO_META = 27.5;
 
@@ -60,6 +85,19 @@ const MONTH_CHART_COLORS = {
   novembro:'#fdba74',
   dezembro:'#67e8f9'
 };
+
+const MOTION_EASE = 'easeinout';
+const MOTION_DURATION = PERFORMANCE_MODE ? 120 : 420;
+const CHART_MOTION = PERFORMANCE_MODE
+  ? {enabled:false}
+  : {
+      enabled:true,
+      easing:MOTION_EASE,
+      speed:MOTION_DURATION,
+      animateGradually:{enabled:false},
+      dynamicAnimation:{enabled:true,speed:300}
+    };
+const chartMotionTimers = {};
 /* ========================================================= */
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -145,7 +183,7 @@ function parseDate(v){
   if(m){ let y=+m[3]; if(y<100) y+=2000; return new Date(y,+m[2]-1,+m[1]); }
   const d=new Date(s); return isNaN(d)?null:d;
 }
-const MESES = MONTHS.map(m => m.short);
+const MESES = ACTIVE_MONTHS.map(m => m.short);
 
 // Caches simples para evitar recalcular datas, números e totais em toda renderização.
 const monthlyRowInfoCache = new WeakMap();
@@ -161,6 +199,52 @@ function normKey(v){
     .replace(/[\u0300-\u036f]/g, '');
 }
 
+function normFieldName(v){
+  // Normaliza nomes de coluna vindos do Supabase.
+  // Assim o ROI é localizado mesmo como roi, ROI, Roi, ROI %, R.O.I etc.
+  return normKey(v).replace(/[^a-z0-9]/g, '');
+}
+
+function filledValue(v){
+  return v !== null && v !== undefined && String(v).trim() !== '';
+}
+
+function detectRoiColumn(row, requireFilled = true){
+  if(!row) return '';
+  const keys = Object.keys(row);
+  const hasValue = key => !requireFilled || filledValue(row[key]);
+
+  // 1) prioridade total para coluna exatamente "roi" minúscula, como está no Supabase.
+  const lowerExact = keys.find(key => key === 'roi' && hasValue(key));
+  if(lowerExact) return lowerExact;
+
+  // 2) compatibilidade por nome normalizado: ROI, Roi, R.O.I, ROI %, etc.
+  const normalizedCandidates = new Set((ROI_FIELD_KEYS || []).map(normFieldName).filter(Boolean));
+  for(const key of keys){
+    const nk = normFieldName(key);
+    if(normalizedCandidates.has(nk) && hasValue(key)) return key;
+  }
+
+  // 3) fallback mais aberto: qualquer coluna contendo "roi", mesmo com espaço/sufixo.
+  // Ex.: "roi " / "roi_2026" / "roi acumulado".
+  for(const key of keys){
+    const nk = normFieldName(key);
+    if(nk.includes('roi') && hasValue(key)) return key;
+  }
+
+  // 4) fallback semântico caso a coluna tenha vindo como retorno/retorno investimento.
+  for(const key of keys){
+    const nk = normFieldName(key);
+    if(nk.includes('retorno') && nk.includes('invest') && hasValue(key)) return key;
+  }
+
+  return '';
+}
+
+function roiColumnLabel(row){
+  return detectRoiColumn(row, false) || 'roi';
+}
+
 function monthIdx(label){
   if(!label) return -1;
   const s = normKey(label).slice(0,3);
@@ -171,6 +255,77 @@ function monthIdx(label){
 function monthCfg(keyOrLabel){
   const idx = monthIdx(keyOrLabel);
   return idx >= 0 ? MONTHS[idx] : null;
+}
+
+
+function annualRoiRaw(row){
+  // Base oficial do dashboard: tabela Financeiro 2026, coluna roi.
+  // Localiza também variações de nome, mas prioriza a coluna "roi" minúscula.
+  // Não usa Caixa nem coluna Rendimento para calcular o ROI do gráfico.
+  const roiKey = detectRoiColumn(row, true);
+  return roiKey ? num(row[roiKey]) : 0;
+}
+
+function currentDashboardMonthIndex(){
+  // Para não mostrar ROI negativo de mês futuro por causa de célula vazia/zero.
+  // Ex.: estamos em junho, então julho-dezembro ficam sem barra.
+  return Math.min(11, Math.max(0, new Date().getMonth()));
+}
+
+function visibleRoiDelta(currentRaw, previousRaw, idx){
+  const cur = num(currentRaw);
+  const prev = num(previousRaw);
+  if(idx <= 0) return null;
+  if(idx > currentDashboardMonthIndex()) return null;
+
+  // Regra especial pedida: Maio sempre pode aparecer mesmo se Abril estiver zerado/vazio.
+  // Assim Maio = ROI Maio - 0, desde que o ROI de Maio tenha valor real.
+  const isMay = idx === 4;
+
+  // Para os demais meses, só informa quando mês atual e anterior têm valor.
+  // Isso evita queda/negativo falso em mês futuro ou mês ainda sem preenchimento.
+  if(Math.abs(cur) < 0.005) return null;
+  if(!isMay && Math.abs(prev) < 0.005) return null;
+
+  const diff = cur - (isMay && Math.abs(prev) < 0.005 ? 0 : prev);
+  return Math.abs(diff) < 0.005 ? null : diff;
+}
+
+function roiMonthValue(idx){
+  const b = anualCache.byMonth?.[idx];
+  return b && b.roiDelta != null ? num(b.roiDelta) : 0;
+}
+
+function roiMonthDisplay(idx){
+  const b = anualCache.byMonth?.[idx];
+  return b && b.roiDelta != null ? fmtBRL2(b.roiDelta) : '—';
+}
+
+function isWithdrawalDescription(row){
+  const desc = normKey(row?.[C.desc] || '');
+  if(!desc) return false;
+  return [
+    /valor\s+retirad[oa]s?/,
+    /retirad[oa]s?/,
+    /saque(?:s)?/,
+    /resgate(?:s)?/,
+    /resgatad[oa]s?/,
+    /valor\s+sacad[oa]s?/,
+    /valor\s+resgatad[oa]s?/
+  ].some(rx => rx.test(desc));
+}
+
+function withdrawalAmount(row){
+  return Math.max(Math.abs(num(row?.[C.ent])), Math.abs(num(row?.[C.sai])));
+}
+
+function withdrawalRowsForMonth(mesKey){
+  const cfg = monthCfg(mesKey);
+  if(!cfg) return [];
+  // Busca na Caixa bruta para pegar descrição tipo "valor retirado", mesmo se a categoria vier vazia.
+  return (state.mensal[cfg.key] || [])
+    .filter(row => isWithdrawalDescription(row) && withdrawalAmount(row) > 0)
+    .map(row => ({row, _mes:cfg.label, _mesKey:cfg.key}));
 }
 
 function monthLabel(keyOrLabel){
@@ -189,7 +344,8 @@ function monthChartColor(keyOrLabel){
 }
 
 function annualRowHasRealFinancialData(row){
-  return ANUAL_VALUE_KEYS.some(k => Math.abs(num(row?.[k])) > 0);
+  return ANUAL_VALUE_KEYS.some(k => Math.abs(num(firstExistingValue(row, [k]))) > 0)
+    || Math.abs(annualRoiRaw(row)) > 0;
 }
 
 function annualMonthHasRealData(monthData, monthIndex){
@@ -347,7 +503,7 @@ function rebuildMensalCache(){
   mensalCache.totals = {};
   mensalCache.all = [];
 
-  MONTHS.forEach(m => {
+  ACTIVE_MONTHS.forEach(m => {
     const rows = validMensalRows(state.mensal[m.key] || []);
     mensalCache.valid[m.key] = rows;
     mensalCache.all.push(...rows);
@@ -365,21 +521,48 @@ function rebuildMensalCache(){
 
 function rebuildAnualCache(){
   const rows = (state.anual.rows || []).slice().sort((a,b)=>monthIdx(a[A.mes])-monthIdx(b[A.mes]));
-  const byMonth = Array(12).fill(null).map(()=>({fb:0,fl:0,caixa:0,eb:0,custos:0,inv:0,roi:0,endiv:0,lucro:0,cresc:0,_count:0,_hasValue:false}));
+  const byMonth = Array(12).fill(null).map(()=>({fb:0,fl:0,caixa:0,eb:0,custos:0,inv:0,roiRaw:0,roiDelta:null,roi:0,endiv:0,lucro:0,cresc:0,_count:0,_hasValue:false}));
 
   rows.forEach(r=>{
-    const i=monthIdx(r[A.mes]); if(i<0) return;
+    const i=monthIdx(r[A.mes]); if(!isActiveMonthIndex(i)) return;
     const b=byMonth[i];
     b.fb+=num(r[A.fb]); b.fl+=num(r[A.fl]); b.caixa+=num(r[A.caixa]);
     b.eb+=num(r[A.eb]); b.custos+=num(r[A.custos]); b.inv+=num(r[A.inv]);
-    b.roi+=num(r[A.roi]); b.endiv+=num(r[A.endiv]);
+    const roiFinanceiro2026 = annualRoiRaw(r);
+    b.roiRaw += roiFinanceiro2026;
+    b.roi += roiFinanceiro2026;
+    b.endiv+=num(r[A.endiv]);
     b.lucro+=num(r[A.lucro]); b.cresc+=num(r[A.cresc]); b._count++;
     b._hasValue = b._hasValue || annualRowHasRealFinancialData(r);
   });
 
-  anualCache.rows = rows;
+  byMonth.forEach((b, idx) => {
+    const prevRaw = idx > 0 ? byMonth[idx - 1].roiRaw : 0;
+    b.roiDelta = visibleRoiDelta(b.roiRaw, prevRaw, idx);
+  });
+
+  anualCache.rows = rows.filter(r => isActiveMonthIndex(monthIdx(r[A.mes])));
   anualCache.byMonth = byMonth;
-  anualCache.totalRow = rows.find(r => String(r[A.mes] || '').trim().toLowerCase() === 'total') || null;
+  anualCache.totalRow = null;
+  window.debugROI = () => {
+    const rowsDebug = (state.anual.rows || [])
+      .filter(r => monthIdx(r[A.mes]) >= 0)
+      .map(r => {
+        const key = detectRoiColumn(r, false);
+        const raw = key ? r[key] : '';
+        const idx = monthIdx(r[A.mes]);
+        const b = anualCache.byMonth[idx] || {};
+        return {
+          mes: r[A.mes],
+          colunaLocalizada: key || 'não localizada',
+          valorOriginal: raw,
+          valorNumerico: key ? num(raw) : 0,
+          roiCalculadoMesContraMes: b.roiDelta
+        };
+      });
+    console.table(rowsDebug);
+    return rowsDebug;
+  };
 }
 
 function monthRows(key){
@@ -408,7 +591,7 @@ function selectedMonthData(filtered = true){
 }
 
 function defaultMonthKey(){
-  const current = MONTHS[new Date().getMonth()]?.key;
+  const current = ACTIVE_MONTHS[ACTIVE_MONTHS.length - 1]?.key;
   if(current && state.mensal.mesesDisp.includes(current)) return current;
   return state.mensal.mesesDisp[state.mensal.mesesDisp.length - 1] || '';
 }
@@ -419,22 +602,31 @@ function resetSelectedMonthToCurrent(){
 
 function firstExistingValue(row, keys){
   if(!row) return 0;
+
+  // 1) tenta exatamente como está escrito.
   for(const k of keys || []){
-    if(Object.prototype.hasOwnProperty.call(row, k) && row[k] !== null && row[k] !== undefined && String(row[k]).trim() !== ''){
-      return row[k];
-    }
+    if(Object.prototype.hasOwnProperty.call(row, k) && filledValue(row[k])) return row[k];
   }
+
+  // 2) fallback multifator: compara sem maiúsculas, acentos, espaços, pontos e símbolos.
+  // Ex.: ROI, roi, Roi, R.O.I, ROI %, "Retorno sobre Investimento".
+  const normalizedRowKeys = Object.keys(row).reduce((acc, key) => {
+    const nk = normFieldName(key);
+    if(nk && !(nk in acc)) acc[nk] = key;
+    return acc;
+  }, {});
+
+  for(const k of keys || []){
+    const realKey = normalizedRowKeys[normFieldName(k)];
+    if(realKey && filledValue(row[realKey])) return row[realKey];
+  }
+
   return 0;
 }
 
 function firstExistingText(row, keys){
-  if(!row) return '';
-  for(const k of keys || []){
-    if(Object.prototype.hasOwnProperty.call(row, k) && row[k] !== null && row[k] !== undefined && String(row[k]).trim() !== ''){
-      return String(row[k]).trim();
-    }
-  }
-  return '';
+  const v = firstExistingValue(row, keys);
+  return filledValue(v) ? String(v).trim() : '';
 }
 
 const state = {
@@ -445,7 +637,18 @@ const state = {
   dreContext: null
 };
 const charts = {};
+const chartOptionSignatures = {};
+const tableRenderTokens = {};
 let kpiModalRenderToken = 0;
+let dataVersion = 0;
+
+if(PERFORMANCE_MODE){
+  document.documentElement.classList.add('perf-mode');
+}
+
+const scheduleIdle = window.requestIdleCallback
+  ? cb => window.requestIdleCallback(cb, {timeout:120})
+  : cb => setTimeout(() => cb({timeRemaining:()=>0, didTimeout:true}), 0);
 
 /* ---------- TABS ---------- */
 document.querySelectorAll('.nav-item').forEach(btn=>{
@@ -478,18 +681,20 @@ async function loadAll(){
   setStatus('Carregando…','text-amber-300');
   try{
     const [mensalResults, anual, dre] = await Promise.all([
-      Promise.all(MONTHS.map(m => fetchTable(TABLES[m.key] || m.table))),
+      Promise.all(ACTIVE_MONTHS.map(m => fetchTable(TABLES[m.key] || m.table))),
       fetchTable(TABLES.anual),
       fetchTable(TABLES.dre)
     ]);
 
-    MONTHS.forEach((m, i) => {
+    MONTHS.forEach(m => { state.mensal[m.key] = []; });
+    ACTIVE_MONTHS.forEach((m, i) => {
       state.mensal[m.key] = mensalResults[i] || [];
     });
 
     state.anual.rows = anual;
     state.dre = dre;
 
+    dataVersion++;
     rebuildMensalCache();
     rebuildAnualCache();
     populateSelects();
@@ -499,7 +704,7 @@ async function loadAll(){
       renderAnual();
     }
 
-    const totalMensal = MONTHS.reduce((acc, m) => acc + monthRows(m.key).length, 0);
+    const totalMensal = ACTIVE_MONTHS.reduce((acc, m) => acc + monthRows(m.key).length, 0);
     setStatus('Conectado','text-emerald-300', totalMensal + anual.length + dre.length);
   }catch(e){
     console.error(e);
@@ -517,17 +722,18 @@ function populateSelects(){
   fillSel('m-filter-categoria',[...cats].sort(),'Todas');
   fillSel('m-filter-conta',[...contas].sort(),'Todas');
 
-  // Janela meses (anual)
+  // Janela meses (anual) — mostra apenas meses passados + mês atual.
   const aMin=document.getElementById('a-mes-min');
   const aMax=document.getElementById('a-mes-max');
-  aMin.innerHTML=MESES.map((m,i)=>`<option value="${i}">${m}</option>`).join('');
-  aMax.innerHTML=MESES.map((m,i)=>`<option value="${i}">${m}</option>`).join('');
-  aMin.value=0; aMax.value=11;
+  const monthOptions = ACTIVE_MONTHS.map(m => `<option value="${monthIdx(m.key)}">${m.short}</option>`).join('');
+  aMin.innerHTML=monthOptions;
+  aMax.innerHTML=monthOptions;
+  clampAnualRange();
+  aMin.value=state.anual.mMin;
+  aMax.value=state.anual.mMax;
 
-  // Chips de meses (mensal) — descobre automaticamente as tabelas Caixa Janeiro...Caixa Dezembro com dados
-  const disp = MONTHS
-    .filter(m => monthRows(m.key).length > 0)
-    .map(m => m.key);
+  // Chips de meses (mensal) — sempre de Janeiro até o mês atual, incluindo Junho quando for o mês atual.
+  const disp = ACTIVE_MONTHS.map(m => m.key);
 
   state.mensal.mesesDisp = disp;
   state.mensal.mesesSel = new Set([...state.mensal.mesesSel].filter(m => disp.includes(m)));
@@ -684,18 +890,14 @@ function renderMensal(){
 
   // --- Consolidado (Financeiro 2026) filtrado pelos meses selecionados ---
   // ⚙️ Ajuste TABLES.anual se o nome da tabela "Consolidado" for diferente
-  const selIdx = new Set(selectedMonthKeys().map(monthIdx));
-  const consolAll = state.anual.rows.slice().sort((a,b)=>monthIdx(a[A.mes])-monthIdx(b[A.mes]));
+  const selIdx = new Set(selectedMonthKeys().map(monthIdx).filter(isActiveMonthIndex));
+  const consolAll = state.anual.rows
+    .filter(r => isActiveMonthIndex(monthIdx(r[A.mes])))
+    .sort((a,b)=>monthIdx(a[A.mes])-monthIdx(b[A.mes]));
   const consol = selIdx.size ? consolAll.filter(r=>selIdx.has(monthIdx(r[A.mes]))) : consolAll;
 
-  // Caixa Total do Ano SEMPRE vem da tabela Financeiro 2026, independente dos filtros/chips.
-  // Prioriza a linha "Total". Se ela não existir, soma apenas os meses válidos.
-  const caixaTotalRow = consolAll.find(r => String(r[A.mes] || '').trim().toLowerCase() === 'total');
-  const caixaAno = caixaTotalRow
-    ? num(caixaTotalRow[A.caixa])
-    : consolAll
-        .filter(r => monthIdx(r[A.mes]) >= 0)
-        .reduce((a,r)=>a+num(r[A.caixa]),0);
+  // Caixa Total do Ano considera apenas Janeiro até o mês atual, sem meses futuros.
+  const caixaAno = consolAll.reduce((a,r)=>a+num(r[A.caixa]),0);
   const lucrAtivos = consol.filter(r=>num(r[A.lucro])!==0);
   const lucrAvg = lucrAtivos.length ? lucrAtivos.reduce((a,r)=>a+num(r[A.lucro]),0)/lucrAtivos.length : 0;
 
@@ -738,7 +940,7 @@ function renderMensal(){
   // Gráficos principais agora vêm das tabelas Caixa Janeiro...Caixa Dezembro.
   // Faturamento Bruto = somente entradas com data + categoria.
   // Custo Operacional = somente saídas com data + categoria.
-  const caixaMensalAll = MONTHS.map(m => {
+  const caixaMensalAll = ACTIVE_MONTHS.map(m => {
     const rows = monthRows(m.key);
     const totals = mensalCache.totals[m.key] || {faturamentoBruto:0, custoOperacional:0};
     return {
@@ -796,13 +998,13 @@ function renderMensal(){
 
   // CORREÇÃO 2: DRE para o Gráfico de Mix - DINÂMICO POR MÊS SELECIONADO
   // Agora o Top Categorias acompanha todos os chips de mês disponíveis.
-  const DRE_MONTHS = Object.fromEntries(MONTHS.map(m => [
+  const DRE_MONTHS = Object.fromEntries(ACTIVE_MONTHS.map(m => [
     m.key,
     { label:m.label, cols:m.dreCols, pctCols:m.drePctCols }
   ]));
 
   const mesesDreAtivos = selectedMonthKeys().filter(m => DRE_MONTHS[m]);
-  const mesesDre = mesesDreAtivos.length ? mesesDreAtivos : MONTHS.map(m => m.key);
+  const mesesDre = mesesDreAtivos.length ? mesesDreAtivos : ACTIVE_MONTHS.map(m => m.key);
   const mesesDreLabel = mesesDre.map(m => DRE_MONTHS[m].label).join(' + ');
 
   const normDre = s => String(s || '')
@@ -1215,6 +1417,38 @@ function txRowHtml(item){
     <td class="text-right mono money-neg modal-money">${saida ? fmtBRL2(saida) : '-'}</td>
   </tr>`;
 }
+
+function setBodyRowsChunked(body, rows, rowRenderer, emptyHtml, tokenKey, chunkSize = UI_RENDER_CHUNK_SIZE){
+  if(!body) return;
+  const token = (tableRenderTokens[tokenKey] || 0) + 1;
+  tableRenderTokens[tokenKey] = token;
+
+  if(!rows || !rows.length){
+    body.innerHTML = emptyHtml;
+    return;
+  }
+
+  // Para listas pequenas, mantém o render instantâneo. Para listas grandes,
+  // divide em blocos para não congelar a UI por centenas/milhares de linhas.
+  if(rows.length <= chunkSize){
+    body.innerHTML = rows.map(rowRenderer).join('');
+    return;
+  }
+
+  body.innerHTML = rows.slice(0, chunkSize).map(rowRenderer).join('');
+  let index = chunkSize;
+
+  const appendNext = () => {
+    if(tableRenderTokens[tokenKey] !== token) return;
+    const next = rows.slice(index, index + chunkSize).map(rowRenderer).join('');
+    if(next) body.insertAdjacentHTML('beforeend', next);
+    index += chunkSize;
+    if(index < rows.length) scheduleIdle(appendNext);
+  };
+
+  scheduleIdle(appendNext);
+}
+
 function renderTxModalRows(){
   const search = document.getElementById('modal-search');
   updateModalSearchUI();
@@ -1239,12 +1473,17 @@ function renderTxModalRows(){
 
   const body = document.getElementById('modal-body');
   if(!body) return;
-  body.innerHTML = filtered.map(txRowHtml).join('') ||
-    `<tr><td colspan="${txModalState.colSpan}" class="text-center text-[var(--muted)] py-10">${escapeHtml(txModalState.emptyMsg)}</td></tr>`;
+  setBodyRowsChunked(
+    body,
+    filtered,
+    txRowHtml,
+    `<tr><td colspan="${txModalState.colSpan}" class="text-center text-[var(--muted)] py-10">${escapeHtml(txModalState.emptyMsg)}</td></tr>`,
+    'modal-body'
+  );
 }
 function rowsForMonthlyModal(mesKey){
   if(mesKey === 'total'){
-    return MONTHS.flatMap(m => monthRows(m.key).map(row => ({row, _mes:m.label, _mesKey:m.key})));
+    return ACTIVE_MONTHS.flatMap(m => monthRows(m.key).map(row => ({row, _mes:m.label, _mesKey:m.key})));
   }
 
   const cfg = monthCfg(mesKey);
@@ -1358,6 +1597,46 @@ function openInvestmentMonthModal(mesKey){
   openTxContainer();
 }
 
+
+function openRoiMonthModal(mesKey){
+  const cfg = monthCfg(mesKey);
+  if(!cfg) return;
+
+  const idx = monthIdx(cfg.key);
+  const current = anualCache.byMonth[idx] || {roiRaw:0,roiDelta:null};
+  const previousRaw = idx > 0 ? num(anualCache.byMonth[idx - 1]?.roiRaw) : 0;
+  const roiDelta = current.roiDelta;
+
+  const rows = [];
+  if(roiDelta != null){
+    rows.push({
+      row:{
+        [C.data]:'',
+        [C.conta]:'Financeiro 2026',
+        [C.cat]:'ROI',
+        [C.desc]:`ROI calculado mês contra mês: ${fmtBRL2(num(current.roiRaw))} - ${fmtBRL2(previousRaw)}`,
+        [C.ent]: roiDelta >= 0 ? roiDelta : 0,
+        [C.sai]: roiDelta < 0 ? Math.abs(roiDelta) : 0
+      },
+      _mes:cfg.label,
+      _mesKey:cfg.key
+    });
+  }
+
+  document.getElementById('modal-title').textContent = `ROI — ${cfg.label}`;
+  document.getElementById('modal-eyebrow').textContent = roiDelta != null
+    ? `Financeiro 2026 • roi atual ${fmtBRL2(num(current.roiRaw))} - roi anterior ${fmtBRL2(previousRaw)} = ${fmtBRL2(roiDelta)}`
+    : 'Sem roi informado na tabela Financeiro 2026 para este mês ou mês anterior';
+  setModalHead('<th>Data</th><th>Mês</th><th>Conta</th><th>Categoria</th><th>Descrição</th><th class="text-right">Entradas</th><th class="text-right">Saídas</th>');
+  setTxModalRows({
+    kind:'roi',
+    rows,
+    colSpan:7,
+    emptyMsg:'Nenhum ROI encontrado para este mês'
+  });
+  openTxContainer();
+}
+
 function openCategoryChartModal(categoria, mesKey){
   const cfg = monthCfg(mesKey);
   if(!cfg || !categoria || categoria === 'Sem dados') return;
@@ -1418,7 +1697,7 @@ function openTxModal(tipo){
 }
 
 function buildKpiModalItems(key){
-  const rows = anualCache.rows.length ? anualCache.rows : (state.anual.rows || []);
+  const rows = anualCache.rows.length ? anualCache.rows : (state.anual.rows || []).filter(r => isActiveMonthIndex(monthIdx(r[A.mes])));
   const byMonth = anualCache.byMonth.length ? anualCache.byMonth : (() => {
     const arr = Array(12).fill(null).map(()=>({caixa:0,lucro:0,cresc:0,_count:0,_hasValue:false}));
     rows.forEach(r => {
@@ -1439,7 +1718,7 @@ function buildKpiModalItems(key){
     return arr;
   })();
 
-  return MONTHS.map((m, i) => {
+  return ACTIVE_MONTHS.map((m, i) => {
     const hasData = annualMonthHasRealData(byMonth[i], i);
     return {
       label:m.short,
@@ -1501,7 +1780,7 @@ function renderPercentModalChart({id, title, seriesName, items, color, showMeta=
   }
 
   const baseOptions = {
-    chart:{type:'line',height:360,background:'transparent',toolbar:{show:false},foreColor:'#737373',fontFamily:'Sora',animations:{enabled:false}},
+    chart:{type:'line',height:360,background:'transparent',toolbar:{show:false},foreColor:'#737373',fontFamily:'Sora'},
     stroke:{curve:'smooth',lineCap:'round'},
     markers:{size:5,strokeWidth:0,hover:{size:8}},
     dataLabels:{enabled:false},
@@ -1601,7 +1880,7 @@ function openKpiIndicatorModal(origem='caixa'){
       [cfg.color],
       false,
       {
-        chart:{height:360,animations:{enabled:false}},
+        chart:{height:360},
         plotOptions:{bar:{columnWidth:'52%'}},
         yaxis:{labels:{style:{colors:'#737373',fontFamily:'IBM Plex Mono',fontSize:'11px'},formatter:v=>'R$ '+fmtK(v)}},
         tooltip:{theme:'dark',y:{formatter:v=>v == null ? 'Sem dados' : fmtBRL2(v)}}
@@ -1636,7 +1915,8 @@ function closeTxModal(){
 
 /* ---------- RENDER ABA ANUAL ---------- */
 function renderAnual(){
-  const rows = anualCache.rows.length ? anualCache.rows : (state.anual.rows || []);
+  clampAnualRange();
+  const rows = anualCache.rows.length ? anualCache.rows : (state.anual.rows || []).filter(r => isActiveMonthIndex(monthIdx(r[A.mes])));
   const byMonth = anualCache.byMonth.length ? anualCache.byMonth : Array(12).fill(null).map(()=>({fb:0,fl:0,caixa:0,eb:0,custos:0,inv:0,roi:0,endiv:0,lucro:0,cresc:0,_count:0}));
 
   const {mMin,mMax}=state.anual;
@@ -1648,6 +1928,7 @@ function renderAnual(){
   const totFL=get('fl').reduce((a,b)=>a+b,0);
   const totEB=get('eb').reduce((a,b)=>a+b,0);
   const totInv=get('inv').reduce((a,b)=>a+b,0);
+  const totRoi=get('roiDelta').reduce((a,b)=>a+num(b),0);
   const active=get('fb').filter((_,i)=>byMonth[mMin+i]._count).length||1;
   const lucroAvg=get('lucro').reduce((a,b)=>a+b,0)/active;
 
@@ -1655,6 +1936,7 @@ function renderAnual(){
   setMoneyText('a-kpi-fl', totFL);
   setMoneyText('a-kpi-eb', totEB);
   setMoneyText('a-kpi-inv', totInv);
+  setMoneyText('a-kpi-rend', totRoi);
   setLucratividadeText('a-kpi-lu', lucroAvg);
 
   renderArea('chart-faturamento',[
@@ -1664,16 +1946,11 @@ function renderAnual(){
   renderBar('chart-caixa',[{name:'Caixa',data:get('caixa')}],labels,[CHART_THEME.accent2]);
   renderArea('chart-ebitda',[{name:'EBITDA',data:get('eb')}],[CHART_THEME.positive],260,labels);
 
-  // Custo Operacional na visão anual com a barra de Total da tabela Financeiro 2026.
-  const totalRowAnual = anualCache.totalRow || rows.find(r => String(r[A.mes] || '').trim().toLowerCase() === 'total');
-  const custoTotalAnual = totalRowAnual
-    ? Math.abs(num(totalRowAnual[A.custos]))
-    : rows
-        .filter(r => monthIdx(r[A.mes]) >= 0)
-        .reduce((acc, r) => acc + Math.abs(num(r[A.custos])), 0);
+  // Custo Operacional na visão anual: total apenas do recorte ativo/selecionado.
+  const custoTotalAnual = get('custos').reduce((acc, v) => acc + Math.abs(num(v)), 0);
   const custoLabels = [...labels, 'Total'];
   const custoData = [...get('custos').map(v=>Math.abs(v)), custoTotalAnual];
-  const custoKeys = [...MONTHS.slice(mMin, mMax + 1).map(m => m.key), 'total'];
+  const custoKeys = [...ACTIVE_MONTHS.slice(mMin, mMax + 1).map(m => m.key), 'total'];
   renderBar('chart-custos',[{name:'Custo Operacional',data:custoData}],custoLabels,[CHART_THEME.primary],false,{
     yaxis:{min:0},
     chart:{
@@ -1685,15 +1962,46 @@ function renderAnual(){
       }
     }
   });
-  const investimentoKeys = MONTHS.slice(mMin, mMax + 1).map(m => m.key);
-  renderBar('chart-investimentos',[{name:'Investimentos',data:get('inv').map(v=>Math.abs(v))}],labels,[CHART_THEME.accent],false,{
-    yaxis:{min:0},
+  const investimentoKeys = ACTIVE_MONTHS.slice(mMin, mMax + 1).map(m => m.key);
+  const investimentoSeries = get('inv').map(v => Math.abs(v));
+  const roiSeries = get('roiDelta');
+  renderBar('chart-investimentos',[
+    {name:'Investimentos',data:investimentoSeries},
+    {name:'ROI',data:roiSeries}
+  ],labels,[CHART_THEME.accent, CHART_THEME.positive],true,{
     chart:{
       events:{
         dataPointSelection:(event, chartContext, config)=>{
           const key = investimentoKeys[config.dataPointIndex];
-          if(key) openInvestmentMonthModal(key);
+          if(!key) return;
+          if(config.seriesIndex === 0) openInvestmentMonthModal(key);
+          if(config.seriesIndex === 1 && roiSeries[config.dataPointIndex] != null) openRoiMonthModal(key);
         }
+      }
+    },
+    plotOptions:{bar:{columnWidth:'70%'}},
+    tooltip:{
+      theme:'dark',
+      shared:false,
+      intersect:true,
+      fixed:{enabled:true,position:'topLeft',offsetX:12,offsetY:10},
+      custom:({series,seriesIndex,dataPointIndex,w})=>{
+        const nome = w?.globals?.seriesNames?.[seriesIndex] || '';
+        const mes = w?.globals?.categoryLabels?.[dataPointIndex] || labels[dataPointIndex] || '';
+        const valor = series?.[seriesIndex]?.[dataPointIndex];
+        if(valor == null) return '';
+        const isRoi = nome === 'ROI';
+        return `
+          <div class="safe-chart-tooltip">
+            <div class="safe-chart-tooltip-month">${escapeHtml(mes)}</div>
+            <div class="safe-chart-tooltip-row">
+              <span class="safe-chart-tooltip-dot" style="background:${isRoi ? CHART_THEME.positive : CHART_THEME.accent}"></span>
+              <span>${escapeHtml(nome)}</span>
+              <strong>${fmtBRL2(valor)}</strong>
+            </div>
+            <div class="safe-chart-tooltip-source">${isRoi ? 'Financeiro 2026 • coluna roi • mês atual - mês anterior' : 'Financeiro 2026 • coluna Investimentos'}</div>
+          </div>
+        `;
       }
     }
   });
@@ -1703,6 +2011,9 @@ function renderAnual(){
   document.getElementById('a-table-body').innerHTML=rows.map(r=>{
     const lucro=num(r[A.lucro]), cresc=num(r[A.cresc]);
     const mesKey = monthCfg(r[A.mes])?.key || '';
+    const roiIdx = mesKey ? monthIdx(mesKey) : -1;
+    const roiDisplay = mesKey ? roiMonthDisplay(roiIdx) : fmtBRL2(anualCache.byMonth.reduce((acc, b) => acc + num(b.roiDelta), 0));
+    const roiValue = roiIdx >= 0 ? roiMonthValue(roiIdx) : anualCache.byMonth.reduce((acc, b) => acc + num(b.roiDelta), 0);
     return `<tr>
       <td class="font-semibold">${mesKey ? `<button type="button" class="annual-invest-btn" data-open-invest-month="${mesKey}">${escapeHtml(r[A.mes]||'-')}</button>` : escapeHtml(r[A.mes]||'-')}</td>
       <td class="text-right mono ${moneyClass(num(r[A.fb]))}">${fmtBRL2(num(r[A.fb]))}</td>
@@ -1711,10 +2022,11 @@ function renderAnual(){
       <td class="text-right mono ${moneyClass(num(r[A.eb]))}">${fmtBRL2(num(r[A.eb]))}</td>
       <td class="text-right mono ${moneyClass(num(r[A.custos]))}">${fmtBRL2(num(r[A.custos]))}</td>
       <td class="text-right mono ${moneyClass(num(r[A.inv]))}">${mesKey ? `<button type="button" class="annual-invest-cell-btn ${moneyClass(num(r[A.inv]))}" data-open-invest-month="${mesKey}">${fmtBRL2(num(r[A.inv]))}</button>` : fmtBRL2(num(r[A.inv]))}</td>
+      <td class="text-right mono ${moneyClass(roiValue)}">${roiDisplay}</td>
       <td class="text-right mono ${lucratividadeClass(lucro)}">${fmtPct(lucro)}</td>
       <td class="text-right mono ${cresc>=0?'text-fuchsia-300':'text-rose-300'}">${fmtPct(cresc)}</td>
     </tr>`;
-  }).join('') || '<tr><td colspan="9" class="text-center text-[var(--muted)] py-10">Sem dados</td></tr>';
+  }).join('') || '<tr><td colspan="10" class="text-center text-[var(--muted)] py-10">Sem dados</td></tr>';
 
   document.querySelectorAll('[data-open-invest-month]').forEach(btn=>{
     btn.addEventListener('click', ()=> openInvestmentMonthModal(btn.dataset.openInvestMonth));
@@ -1723,40 +2035,87 @@ function renderAnual(){
 
 
 /* ---------- CHART HELPERS ---------- */
+function prefersReducedMotion(){
+  return typeof window !== 'undefined'
+    && window.matchMedia
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function chartMotionOptions(){
+  return (PERFORMANCE_MODE || prefersReducedMotion()) ? {enabled:false} : CHART_MOTION;
+}
+
+function markChartMotion(id, className, duration=180){
+  const el = document.getElementById(id);
+  if(!el || PERFORMANCE_MODE || prefersReducedMotion()) return;
+  clearTimeout(chartMotionTimers[id + ':' + className]);
+  el.classList.add(className);
+  chartMotionTimers[id + ':' + className] = setTimeout(()=>{
+    el.classList.remove(className);
+  }, duration);
+}
+
 function normalizeChartOptions(opt){
   opt = opt || {};
   opt.chart = mergeOptions(opt.chart || {}, {
-    animations:{enabled:false},
+    animations:chartMotionOptions(),
     toolbar:{show:false},
     redrawOnParentResize:false,
     redrawOnWindowResize:false
   });
+  opt.states = mergeOptions({
+    normal:{filter:{type:'none'}},
+    hover:{filter:{type:'lighten',value:.035}},
+    active:{allowMultipleDataPointsSelection:false,filter:{type:'none'}}
+  }, opt.states || {});
   return opt;
+}
+function chartOptionSignature(opt){
+  try{
+    return JSON.stringify({dataVersion,opt}, (key, value) => typeof value === 'function' ? '__fn__' : value);
+  }catch(e){
+    return String(Date.now());
+  }
 }
 function upsert(id,opt){
   const el=document.querySelector('#'+id); if(!el) return;
+  const card = el.closest?.('.card');
+  if(card) card.classList.add('chart-card');
+
   opt = normalizeChartOptions(opt);
+  opt.chart = mergeOptions(opt.chart || {}, {id});
   const nextType = opt?.chart?.type || 'line';
+  const signature = chartOptionSignature(opt);
+
+  // Se nada mudou, não chama updateOptions. Isso evita repaints caros ao clicar em filtros
+  // que não alteram o dataset final do gráfico.
+  if(charts[id] && charts[id].__type === nextType && chartOptionSignatures[id] === signature) return;
 
   // ApexCharts costuma falhar quando tentamos trocar o tipo do mesmo gráfico
   // (bar -> line ou line -> bar) usando apenas updateOptions. Nesses casos, recria.
   if(charts[id] && charts[id].__type !== nextType){
+    markChartMotion(id, 'chart-soft-exit', 120);
     destroyChart(id);
   }
 
+  chartOptionSignatures[id] = signature;
+
   if(charts[id]){
-    charts[id].updateOptions(opt,false,false);
+    markChartMotion(id, 'chart-soft-update', 180);
+    charts[id].updateOptions(opt, false, false, false);
   } else {
     el.innerHTML = '';
+    markChartMotion(id, 'chart-soft-enter', 220);
     charts[id]=new ApexCharts(el,opt);
     charts[id].__type = nextType;
-    charts[id].render();
+    charts[id].render().then(()=>markChartMotion(id, 'chart-soft-ready', 220));
   }
 }
 function destroyChart(id){
   if(charts[id]){
     try{ charts[id].destroy(); }catch(e){ console.warn('Erro ao destruir gráfico', id, e); }
     delete charts[id];
+    delete chartOptionSignatures[id];
   }
   const el=document.querySelector('#'+id);
   if(el) el.innerHTML='';
@@ -1795,7 +2154,7 @@ function legendOptions(extra={}){
 
 function renderArea(id,series,colors,height=300,categories){
   upsert(id,{
-    chart:{type:'area',height,background:'transparent',toolbar:{show:false},foreColor:'#737373',fontFamily:'Sora',animations:{enabled:true,speed:600}},
+    chart:{type:'area',height,background:'transparent',toolbar:{show:false},foreColor:'#737373',fontFamily:'Sora',animations:chartMotionOptions()},
     series,colors,
     stroke:{curve:'smooth',width:3,lineCap:'round'},
     fill:{type:'gradient',gradient:{shadeIntensity:1,opacityFrom:.55,opacityTo:.02,stops:[0,95],colorStops:colors.map(c=>[
@@ -1928,6 +2287,24 @@ function chartLegendSet(id){
   if(!chartLegendHidden[id]) chartLegendHidden[id] = new Set();
   return chartLegendHidden[id];
 }
+function smoothLegendToggle(id, btn, action){
+  if(btn){
+    btn.classList.add('is-toggling');
+    btn.disabled = true;
+  }
+  markChartMotion(id, 'chart-series-switching', 360);
+  requestAnimationFrame(()=>{
+    try{ action(); }
+    finally{
+      setTimeout(()=>{
+        if(btn){
+          btn.classList.remove('is-toggling');
+          btn.disabled = false;
+        }
+      }, (PERFORMANCE_MODE || prefersReducedMotion()) ? 0 : 120);
+    }
+  });
+}
 function renderCustomChartLegend(id, labels, colors){
   const chartEl = document.getElementById(id);
   if(!chartEl) return;
@@ -1967,17 +2344,18 @@ function renderCustomChartLegend(id, labels, colors){
       else hidden.delete(label);
 
       const chart = charts[id];
-      if(chart){
-        try{
-          if(shouldHide && typeof chart.hideSeries === 'function') chart.hideSeries(label);
-          else if(!shouldHide && typeof chart.showSeries === 'function') chart.showSeries(label);
-          else if(typeof chart.toggleSeries === 'function') chart.toggleSeries(label);
-        }catch(e){
-          console.warn('Falha ao alternar legenda', label, e);
+      smoothLegendToggle(id, btn, () => {
+        if(chart){
+          try{
+            if(shouldHide && typeof chart.hideSeries === 'function') chart.hideSeries(label);
+            else if(!shouldHide && typeof chart.showSeries === 'function') chart.showSeries(label);
+            else if(typeof chart.toggleSeries === 'function') chart.toggleSeries(label);
+          }catch(e){
+            console.warn('Falha ao alternar legenda', label, e);
+          }
         }
-      }
-
-      renderCustomChartLegend(id, labels, colors);
+        renderCustomChartLegend(id, labels, colors);
+      });
     });
   });
 }
@@ -1986,6 +2364,7 @@ function applyCustomLegendState(id, labels){
   if(!chart) return;
   const hidden = chartLegendSet(id);
   requestAnimationFrame(() => {
+    markChartMotion(id, 'chart-series-switching', 320);
     labels.forEach(label => {
       try{
         if(hidden.has(label) && typeof chart.hideSeries === 'function') chart.hideSeries(label);
@@ -2020,7 +2399,9 @@ function renderDonutDre(id, series, labels, grupos, totalOverride = null, period
     return el;
   }
 
-  function moveTooltip(event){
+  let tooltipMoveFrame = null;
+  let tooltipMoveEvent = null;
+  function moveTooltipNow(event){
     const el = getTooltipEl();
     if(!event) return;
 
@@ -2039,6 +2420,15 @@ function renderDonutDre(id, series, labels, grupos, totalOverride = null, period
 
     el.style.left = Math.max(12, x) + 'px';
     el.style.top = Math.max(12, y) + 'px';
+  }
+
+  function moveTooltip(event){
+    tooltipMoveEvent = event;
+    if(tooltipMoveFrame) return;
+    tooltipMoveFrame = requestAnimationFrame(() => {
+      tooltipMoveFrame = null;
+      moveTooltipNow(tooltipMoveEvent);
+    });
   }
 
   function hideTooltip(){
@@ -2480,8 +2870,13 @@ function renderDreFullModal(){
     ? `Filtrando: ${itemFiltered}/${itemTotal}`
     : 'Pesquise em todas as colunas da DRE';
 
-  body.innerHTML = rowsToRender.map(row => row.html).join('') ||
-    '<tr><td colspan="4" class="text-center text-[var(--muted)] py-10">Nenhum item encontrado</td></tr>';
+  setBodyRowsChunked(
+    body,
+    rowsToRender,
+    row => row.html,
+    '<tr><td colspan="4" class="text-center text-[var(--muted)] py-10">Nenhum item encontrado</td></tr>',
+    'dre-modal-body'
+  );
 }
 
 function openDreModal(){
@@ -2695,7 +3090,7 @@ function aiSumRows(rows){
 function buildDashboardAIContext(){
   const selectedKeys = selectedMonthKeys();
   const selectedLabels = selectedKeys.map(monthLabel);
-  const mesesTodos = MONTHS.map(m => {
+  const mesesTodos = ACTIVE_MONTHS.map(m => {
     const rows = monthRows(m.key);
     const totals = aiSumRows(rows);
     return {
@@ -2748,7 +3143,9 @@ function buildDashboardAIContext(){
     }))
   } : null;
 
-  const financeiro2026 = (state.anual.rows || []).map(r => ({
+  const financeiro2026 = (state.anual.rows || [])
+    .filter(r => isActiveMonthIndex(monthIdx(r[A.mes])))
+    .map(r => ({
     mes:r[A.mes],
     faturamentoBruto:num(r[A.fb]),
     faturamentoLiquido:num(r[A.fl]),
@@ -2992,12 +3389,23 @@ document.getElementById('m-clear').addEventListener('click',()=>{
   requestRenderMensal();
 });
 
-document.getElementById('a-mes-min').addEventListener('change',e=>{state.anual.mMin=+e.target.value; requestRenderAnual();});
-document.getElementById('a-mes-max').addEventListener('change',e=>{state.anual.mMax=+e.target.value; requestRenderAnual();});
+document.getElementById('a-mes-min').addEventListener('change',e=>{state.anual.mMin=+e.target.value; clampAnualRange(); populateSelects(); requestRenderAnual();});
+document.getElementById('a-mes-max').addEventListener('change',e=>{state.anual.mMax=+e.target.value; clampAnualRange(); populateSelects(); requestRenderAnual();});
 document.getElementById('a-clear').addEventListener('click',()=>{
-  state.anual.mMin=0; state.anual.mMax=11;
-  document.getElementById('a-mes-min').value=0; document.getElementById('a-mes-max').value=11;
+  state.anual.mMin=0; state.anual.mMax=CURRENT_MONTH_LIMIT_INDEX;
+  document.getElementById('a-mes-min').value=0; document.getElementById('a-mes-max').value=CURRENT_MONTH_LIMIT_INDEX;
   requestRenderAnual();
+});
+
+// Microinteração global nas legendas nativas do ApexCharts.
+// Deixa o liga/desliga das séries mais suave e evita a sensação de travamento visual.
+document.addEventListener('pointerdown', e=>{
+  const legendItem = e.target.closest?.('.apexcharts-legend-series');
+  if(!legendItem) return;
+  const chartEl = legendItem.closest('[id^="chart-"], #modal-kpi-chart-graph, #modal-dre-chart, #modal-tx-chart');
+  if(chartEl?.id) markChartMotion(chartEl.id, 'chart-series-switching', 160);
+  legendItem.classList.add('is-toggling');
+  setTimeout(()=>legendItem.classList.remove('is-toggling'), (PERFORMANCE_MODE || prefersReducedMotion()) ? 0 : 160);
 });
 
 document.getElementById('reload-all').addEventListener('click',loadAll);

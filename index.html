@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Virtus Ads Finance — Dashboard</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
@@ -176,7 +178,7 @@
           <div class="flex items-start justify-between gap-3 mb-5">
             <div>
               <div class="section-eyebrow mb-1">Mix</div>
-              <h2 class="font-semibold tracking-[-0.03em] text-lg">Top Categorias — Total Bruto</h2>
+              <h2 class="font-semibold tracking-[-0.03em] text-lg">Visão Geral</h2>
             </div>
             <button id="dre-open" class="chip-btn text-[.68rem] whitespace-nowrap">DRE completa</button>
           </div>
@@ -231,12 +233,13 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
         <div class="card p-5 kpi-accent"><div class="kpi-icon bg-fuchsia-500/15 text-fuchsia-300">$</div><p class="kpi-label mt-3">Fat. Bruto</p><p id="a-kpi-fb" class="kpi-value text-fuchsia-300 mono">R$ 0</p></div>
         <div class="card p-5 cursor-pointer hover:border-white transition" data-open-kpi-chart="saldo" title="Ver gráfico de Caixa por Mês"><div class="kpi-icon bg-violet-500/15 text-violet-300">$</div><p class="kpi-label mt-3">Caixa</p><p id="a-kpi-fl" class="kpi-value text-violet-300 mono">R$ 0</p></div>
         <div class="card p-5"><div class="kpi-icon bg-emerald-500/15 text-emerald-300">▲</div><p class="kpi-label mt-3">EBITDA</p><p id="a-kpi-eb" class="kpi-value text-emerald-300 mono">R$ 0</p></div>
         <div class="card p-5 cursor-pointer hover:border-white transition" data-open-kpi-chart="anualLucratividade" title="Ver gráfico de Lucratividade"><div class="kpi-icon bg-lime-500/15 text-lime-300">%</div><p class="kpi-label mt-3">Lucratividade Média</p><p id="a-kpi-lu" class="kpi-value text-lime-300 mono">0%</p></div>
         <div class="card p-5"><div class="kpi-icon bg-sky-500/15 text-sky-300">↗</div><p class="kpi-label mt-3">Investimentos</p><p id="a-kpi-inv" class="kpi-value mono">R$ 0</p></div>
+        <div class="card p-5"><div class="kpi-icon bg-emerald-500/15 text-emerald-300">◌</div><p class="kpi-label mt-3">Rendimento</p><p id="a-kpi-rend" class="kpi-value mono">R$ 0</p></div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -265,7 +268,7 @@
         </div>
         <div class="card p-6">
           <div class="section-eyebrow mb-1">Investimento</div>
-          <h2 class="font-semibold tracking-[-0.03em] mb-4">Investimentos</h2>
+          <h2 class="font-semibold tracking-[-0.03em] mb-4">Investimentos x Rendimento</h2>
           <div id="chart-investimentos"></div>
         </div>
       </div>
@@ -413,6 +416,7 @@
             <th class="text-right">EBITDA</th>
             <th class="text-right">Custos</th>
             <th class="text-right">Invest.</th>
+            <th class="text-right">Rendimento</th>
             <th class="text-right">Lucro %</th>
             <th class="text-right">Cresc. %</th>
           </tr>
@@ -472,6 +476,6 @@
   </form>
 </div>
 
-<script src="script.js"></script>
+<script src="script.js" defer></script>
 </body>
 </html>
