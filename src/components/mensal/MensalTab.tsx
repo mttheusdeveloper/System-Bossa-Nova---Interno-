@@ -1,3 +1,6 @@
+import { Wallet } from 'lucide-react';
+import { StatsCard } from '../ui/activity-stats-card';
+import { fmtBRL } from '../../lib/format';
 import { useDashboard } from '../../state/DashboardContext';
 import { useMensalDerived } from '../../hooks/useMensalDerived';
 import { useMensalKpis, useCaixaChartItems } from '../../hooks/useMensalKpis';
@@ -25,6 +28,14 @@ export function MensalTab() {
 
   return (
     <section className="space-y-6">
+      <StatsCard
+        title="Caixa Acumulado 2026"
+        metric={kpis.caixaAno / 1000}
+        metricUnit="K"
+        subtext={`${fmtBRL(kpis.caixaAno)} acumulados desde Janeiro`}
+        icon={<Wallet className="h-6 w-6" />}
+      />
+
       <MensalFilters mensalDerived={mensalDerived} />
       <KpiGridMensal kpis={kpis} />
       <ChartComparativo items={caixaChartItems} />
