@@ -71,7 +71,12 @@ export function filledValue(v: unknown): boolean {
 }
 
 export function firstExistingValue(row: RawRow | null | undefined, keys: string[]): unknown {
-  if (!row) return 0;
+  // `null` sinaliza "não encontrado". Importante NÃO usar 0 aqui: filledValue(0)
+  // é true (String(0) não é vazio), então firstExistingText() acabava lendo o
+  // sentinela como um valor de verdade (texto "0"), zerando itens da DRE cujas
+  // colunas de % simplesmente não existem na linha. num()/parseDate() já tratam
+  // null como "sem valor" normalmente, então essa troca não muda nenhum outro caller.
+  if (!row) return null;
 
   // 1) tenta exatamente como está escrito.
   for (const k of keys || []) {
@@ -91,7 +96,7 @@ export function firstExistingValue(row: RawRow | null | undefined, keys: string[
     if (realKey && filledValue(row[realKey])) return row[realKey];
   }
 
-  return 0;
+  return null;
 }
 
 export function firstExistingText(row: RawRow | null | undefined, keys: string[]): string {

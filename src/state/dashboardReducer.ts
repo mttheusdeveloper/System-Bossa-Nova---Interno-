@@ -14,6 +14,7 @@ export interface DashboardState {
   dreRows: RawRow[];
   status: ConnectionStatus;
   statusCount: number;
+  usingMockData: boolean;
 }
 
 export const initialMensalFilters: MensalFilterState = {
@@ -43,12 +44,13 @@ export const initialDashboardState: DashboardState = {
   dreRows: [],
   status: 'connecting',
   statusCount: 0,
+  usingMockData: false,
 };
 
 export type DashboardAction =
   | { type: 'SET_TAB'; tab: Tab }
   | { type: 'SET_STATUS'; status: ConnectionStatus; count?: number }
-  | { type: 'DATA_LOADED'; mensalRows: Record<string, RawRow[]>; anualRows: RawRow[]; dreRows: RawRow[] }
+  | { type: 'DATA_LOADED'; mensalRows: Record<string, RawRow[]>; anualRows: RawRow[]; dreRows: RawRow[]; usingMockData: boolean }
   | { type: 'TOGGLE_MONTH_CHIP'; key: string }
   | { type: 'SET_TIPO'; tipo: MensalFilterState['tipo'] }
   | { type: 'SET_CATEGORIA'; value: string }
@@ -82,6 +84,7 @@ export function dashboardReducer(state: DashboardState, action: DashboardAction)
         mensalRows: action.mensalRows,
         anualRows: action.anualRows,
         dreRows: action.dreRows,
+        usingMockData: action.usingMockData,
         mensalFilters: { ...state.mensalFilters, mesesDisp, mesesSel },
       };
     }

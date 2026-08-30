@@ -21,9 +21,13 @@ export function StatusCard() {
         <span className="pulse" />
         <span className="text-[.7rem] text-[var(--muted)] uppercase tracking-wider">Status</span>
       </div>
-      <div className={`text-xs ${STATUS_CLASS[state.status]}`}>{STATUS_TEXT[state.status]}</div>
+      <div className={`text-xs ${state.usingMockData ? 'money-warn' : STATUS_CLASS[state.status]}`}>
+        {state.usingMockData ? 'Modo demonstração' : STATUS_TEXT[state.status]}
+      </div>
       {state.status === 'connected' && (
-        <div className="text-[.65rem] text-[var(--muted)] mt-2">{state.statusCount} registros</div>
+        <div className="text-[.65rem] text-[var(--muted)] mt-2">
+          {state.usingMockData ? 'Dados fictícios' : `${state.statusCount} registros`}
+        </div>
       )}
     </div>
   );

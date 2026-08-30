@@ -2,6 +2,7 @@ import { DashboardProvider, useDashboard } from './state/DashboardContext';
 import { ModalsProvider } from './state/ModalsContext';
 import { Sidebar } from './components/layout/Sidebar';
 import { Topbar } from './components/layout/Topbar';
+import { DemoModeBanner } from './components/layout/DemoModeBanner';
 import { MensalTab } from './components/mensal/MensalTab';
 import { AnualTab } from './components/anual/AnualTab';
 import { TxModal } from './components/modals/TxModal';
@@ -18,6 +19,7 @@ function DashboardShell() {
       <Sidebar />
       <main className="flex-1 min-w-0 px-6 lg:px-10 py-6">
         <Topbar />
+        <DemoModeBanner />
         {state.tab === 'mensal' ? <MensalTab /> : <AnualTab />}
       </main>
       <TxModal />
