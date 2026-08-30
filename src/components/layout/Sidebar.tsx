@@ -11,7 +11,7 @@ export function Sidebar() {
   const { state, dispatch } = useDashboard();
 
   return (
-    <aside className="w-60 shrink-0 border-r border-[#1f1f1f] bg-black/60 backdrop-blur-[2px] px-4 py-6 hidden lg:flex flex-col gap-6 sticky top-0 h-screen">
+    <aside className="w-60 shrink-0 border-r border-[var(--border)] bg-[var(--surface)] px-4 py-6 hidden lg:flex flex-col gap-6 sticky top-0 h-screen">
       <div className="flex items-center gap-3 px-2 brand-header">
         <div className="brand-logo-box">
           <img src="/assets/logo-virtus.png" alt="Logo Virtus" />

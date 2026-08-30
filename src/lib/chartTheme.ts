@@ -13,10 +13,10 @@ export const PALETTE = [
   CHART_THEME.muted,
 ];
 
-export const baseGrid = { borderColor: '#1f1f1f', strokeDashArray: 4, padding: { left: 8, right: 8 } };
+export const baseGrid = { borderColor: '#2A2A2A', strokeDashArray: 4, padding: { left: 8, right: 8 } };
 
 export const baseAxis = {
-  labels: { style: { colors: '#737373', fontSize: '11px', fontFamily: 'IBM Plex Mono' } },
+  labels: { style: { colors: '#9A9A9A', fontSize: '11px', fontFamily: 'Inter' } },
   axisBorder: { show: false },
   axisTicks: { show: false },
 };
@@ -59,9 +59,9 @@ export function legendOptions(extra: Record<string, any> = {}) {
     horizontalAlign: 'center' as const,
     floating: false,
     fontSize: '12px',
-    fontFamily: 'Sora',
+    fontFamily: 'Inter',
     fontWeight: 650,
-    labels: { colors: '#f5f5f5', useSeriesColors: false },
+    labels: { colors: '#EDEDED', useSeriesColors: false },
     markers: { width: 10, height: 10, radius: 99, offsetX: 0, offsetY: 0 },
     itemMargin: { horizontal: 6, vertical: 6 },
     onItemClick: { toggleDataSeries: true },

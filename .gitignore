@@ -15,6 +15,9 @@ dist-ssr
 # Environment variables (contains secrets — never commit)
 .env
 
+# Projeto Next.js separado, usado só como referência visual (não faz parte do app)
+/energy-dashboard/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

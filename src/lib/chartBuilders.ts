@@ -9,7 +9,7 @@ import { splitLucratividadeSeries, lucroPointAnnotations } from './chartOptions'
 export function buildAreaOptions(series: ApexOptions['series'], colors: string[], height = 300, categories?: string[]): ApexOptions {
   const firstColor = colors[0];
   return {
-    chart: { type: 'area', height, background: 'transparent', toolbar: { show: false }, foreColor: '#737373', fontFamily: 'Sora' },
+    chart: { type: 'area', height, background: 'transparent', toolbar: { show: false }, foreColor: '#9A9A9A', fontFamily: 'Inter' },
     series,
     colors,
     stroke: { curve: 'smooth', width: 3, lineCap: 'round' },
@@ -21,7 +21,7 @@ export function buildAreaOptions(series: ApexOptions['series'], colors: string[]
     grid: baseGrid,
     markers: { size: 0, hover: { size: 6 } },
     xaxis: { ...baseAxis, categories: categories || [] },
-    yaxis: { labels: { style: { colors: '#737373', fontFamily: 'IBM Plex Mono', fontSize: '11px' }, formatter: (v: number) => 'R$ ' + fmtK(v) } },
+    yaxis: { labels: { style: { colors: '#9A9A9A', fontFamily: 'Inter', fontSize: '11px' }, formatter: (v: number) => 'R$ ' + fmtK(v) } },
     tooltip: { theme: 'dark', y: { formatter: (v: number) => fmtBRL2(v) } },
     legend: legendOptions({ markers: { width: 10, height: 10, radius: 99 } }),
   };
@@ -36,7 +36,7 @@ export function buildBarOptions(
   extra: Partial<ApexOptions> = {},
 ): ApexOptions {
   const base: ApexOptions = {
-    chart: { type: 'bar', height: 260, background: 'transparent', toolbar: { show: false }, foreColor: '#737373', fontFamily: 'Sora' },
+    chart: { type: 'bar', height: 260, background: 'transparent', toolbar: { show: false }, foreColor: '#9A9A9A', fontFamily: 'Inter' },
     series,
     colors,
     plotOptions: { bar: { borderRadius: 6, borderRadiusApplication: 'end', columnWidth: grouped ? '70%' : '55%' } },
@@ -44,7 +44,7 @@ export function buildBarOptions(
     dataLabels: { enabled: false },
     grid: baseGrid,
     xaxis: { ...baseAxis, categories },
-    yaxis: { labels: { style: { colors: '#737373', fontFamily: 'IBM Plex Mono', fontSize: '11px' }, formatter: (v: number) => 'R$ ' + fmtK(v) } },
+    yaxis: { labels: { style: { colors: '#9A9A9A', fontFamily: 'Inter', fontSize: '11px' }, formatter: (v: number) => 'R$ ' + fmtK(v) } },
     tooltip: { theme: 'dark', y: { formatter: (v: number) => fmtBRL2(v) } },
     legend: legendOptions(),
   };
@@ -61,16 +61,16 @@ export function buildBarHOptions(
   const height = opts.height || Math.max(360, categories.length * 40);
   const barHeight = opts.barHeight || '68%';
   const base: ApexOptions = {
-    chart: { type: 'bar', height, background: 'transparent', toolbar: { show: false }, foreColor: '#737373', fontFamily: 'Sora' },
+    chart: { type: 'bar', height, background: 'transparent', toolbar: { show: false }, foreColor: '#9A9A9A', fontFamily: 'Inter' },
     series,
     colors,
-    stroke: { show: true, width: 1, colors: ['#0a0a0a'] },
+    stroke: { show: true, width: 1, colors: ['#0E0E0E'] },
     plotOptions: { bar: { horizontal: true, borderRadius: 6, borderRadiusApplication: 'end', barHeight } },
     fill: { type: 'gradient', gradient: { shade: 'dark', type: 'horizontal', shadeIntensity: 0.25, opacityFrom: 0.98, opacityTo: 0.78, stops: [0, 100] } },
     dataLabels: { enabled: false },
     grid: baseGrid,
-    xaxis: { ...baseAxis, categories, labels: { style: { colors: '#737373', fontFamily: 'IBM Plex Mono', fontSize: '11px' }, formatter: (v: number) => 'R$ ' + fmtK(v) } },
-    yaxis: { labels: { style: { colors: '#fafafa', fontSize: '12px' } } },
+    xaxis: { ...baseAxis, categories, labels: { style: { colors: '#9A9A9A', fontFamily: 'Inter', fontSize: '11px' }, formatter: (v: number) => 'R$ ' + fmtK(v) } },
+    yaxis: { labels: { style: { colors: '#EDEDED', fontSize: '12px' } } },
     tooltip: { theme: 'dark', y: { formatter: (v: number) => fmtBRL2(v) } },
     legend: legendOptions({ markers: { width: 10, height: 10, radius: 99 }, itemMargin: { horizontal: 7, vertical: 6 } }),
   };
@@ -83,7 +83,7 @@ export function buildBarHOptions(
 // Porta de renderLine(): linha simples, com caso especial para chart-lucro (meta + acima/abaixo).
 export function buildLineOptions(id: string, series: ApexOptions['series'], categories: string[], colors: string[]): ApexOptions {
   const opt: ApexOptions = {
-    chart: { type: 'line', height: 240, background: 'transparent', toolbar: { show: false }, foreColor: '#737373', fontFamily: 'Sora' },
+    chart: { type: 'line', height: 240, background: 'transparent', toolbar: { show: false }, foreColor: '#9A9A9A', fontFamily: 'Inter' },
     series,
     colors,
     stroke: { curve: 'smooth', width: 3, lineCap: 'round' },
@@ -91,7 +91,7 @@ export function buildLineOptions(id: string, series: ApexOptions['series'], cate
     dataLabels: { enabled: false },
     grid: baseGrid,
     xaxis: { ...baseAxis, categories },
-    yaxis: { labels: { style: { colors: '#737373', fontFamily: 'IBM Plex Mono', fontSize: '11px' }, formatter: (v: number) => v.toFixed(0) + '%' } },
+    yaxis: { labels: { style: { colors: '#9A9A9A', fontFamily: 'Inter', fontSize: '11px' }, formatter: (v: number) => v.toFixed(0) + '%' } },
     tooltip: { theme: 'dark', y: { formatter: (v: number | null) => (v == null ? 'Sem dados' : `${Number(v).toFixed(2)}%`) } },
     legend: legendOptions(),
   };
@@ -110,7 +110,7 @@ export function buildLineOptions(id: string, series: ApexOptions['series'], cate
       { name: 'Acima da meta', data: split.good },
       { name: 'Abaixo da meta', data: split.bad },
     ];
-    opt.colors = ['rgba(255,255,255,.22)', '#86efac', '#fca5a5'];
+    opt.colors = ['rgba(255,255,255,.22)', '#34D399', '#F87171'];
     opt.stroke = { curve: 'smooth', width: [2, 4, 4], lineCap: 'round' };
     opt.markers = { size: [0, 5, 5], strokeWidth: 0, hover: { size: 8 } };
     opt.yaxis = { ...(opt.yaxis as object), min: Math.min(0, Math.floor(minValue / 5) * 5), max: Math.max(35, Math.ceil((maxValue + 5) / 5) * 5) };
@@ -119,9 +119,9 @@ export function buildLineOptions(id: string, series: ApexOptions['series'], cate
       yaxis: [
         {
           y: LUCRO_META,
-          borderColor: '#d6b77a',
+          borderColor: '#FBBF24',
           strokeDashArray: 6,
-          label: { text: lucroMetaLabel(), borderColor: '#d6b77a', style: { background: '#111', color: '#d6b77a', fontSize: '11px', fontFamily: 'Sora', fontWeight: 800 } },
+          label: { text: lucroMetaLabel(), borderColor: '#FBBF24', style: { background: '#1B1B1B', color: '#FBBF24', fontSize: '11px', fontFamily: 'Inter', fontWeight: 800 } },
         },
       ],
       points: lucroPointAnnotations(items),
@@ -146,7 +146,7 @@ export function buildPercentModalOptions({
   const data = items.map((i) => i.value);
   const values = data.filter((v): v is number => v !== null && v !== undefined && Number.isFinite(Number(v)));
   const yaxis: NonNullable<ApexOptions['yaxis']> = {
-    labels: { style: { colors: '#737373', fontFamily: 'IBM Plex Mono', fontSize: '11px' }, formatter: (v: number) => `${Number(v).toFixed(0)}%` },
+    labels: { style: { colors: '#9A9A9A', fontFamily: 'Inter', fontSize: '11px' }, formatter: (v: number) => `${Number(v).toFixed(0)}%` },
   };
 
   if (showMeta) {
@@ -157,7 +157,7 @@ export function buildPercentModalOptions({
   }
 
   const base: ApexOptions = {
-    chart: { type: 'line', height: 360, background: 'transparent', toolbar: { show: false }, foreColor: '#737373', fontFamily: 'Sora' },
+    chart: { type: 'line', height: 360, background: 'transparent', toolbar: { show: false }, foreColor: '#9A9A9A', fontFamily: 'Inter' },
     stroke: { curve: 'smooth', lineCap: 'round' },
     markers: { size: 5, strokeWidth: 0, hover: { size: 8 } },
     dataLabels: { enabled: false },
@@ -171,9 +171,9 @@ export function buildPercentModalOptions({
           yaxis: [
             {
               y: LUCRO_META,
-              borderColor: '#d6b77a',
+              borderColor: '#FBBF24',
               strokeDashArray: 6,
-              label: { text: lucroMetaLabel(), borderColor: '#d6b77a', style: { background: '#111', color: '#d6b77a', fontSize: '11px', fontFamily: 'Sora', fontWeight: 800 } },
+              label: { text: lucroMetaLabel(), borderColor: '#FBBF24', style: { background: '#1B1B1B', color: '#FBBF24', fontSize: '11px', fontFamily: 'Inter', fontWeight: 800 } },
             },
           ],
           points: lucroPointAnnotations(items),
@@ -189,7 +189,7 @@ export function buildPercentModalOptions({
         { name: 'Acima da meta', data: split.good },
         { name: 'Abaixo da meta', data: split.bad },
       ],
-      colors: ['rgba(255,255,255,.22)', '#86efac', '#fca5a5'],
+      colors: ['rgba(255,255,255,.22)', '#34D399', '#F87171'],
       stroke: { width: [2, 4, 4], curve: 'smooth', lineCap: 'round' },
       markers: { size: [0, 5, 5], strokeWidth: 0, hover: { size: 8 } },
       legend: legendOptions({ customLegendItems: ['Lucratividade %', 'Acima da meta', 'Abaixo da meta'] }),
@@ -209,7 +209,7 @@ export function buildPercentModalOptions({
 // aqui só a config pura do gráfico (tooltip nativo desligado, legend:false).
 export function buildDonutOptions(series: number[], labels: string[], colors: string[], totalOverride: number | null): ApexOptions {
   return {
-    chart: { type: 'donut', height: 380, background: 'transparent', foreColor: '#737373', fontFamily: 'Sora' },
+    chart: { type: 'donut', height: 380, background: 'transparent', foreColor: '#9A9A9A', fontFamily: 'Inter' },
     series,
     labels,
     colors,
@@ -222,13 +222,13 @@ export function buildDonutOptions(series: number[], labels: string[], colors: st
           size: '66%',
           labels: {
             show: true,
-            name: { color: '#8a8a8a', fontSize: '14px', fontFamily: 'Sora', fontWeight: 650 },
-            value: { color: '#fafafa', fontSize: '22px', fontFamily: 'IBM Plex Mono', fontWeight: 700, formatter: (v: string) => fmtBRL(Number(v)) },
+            name: { color: '#8a8a8a', fontSize: '14px', fontFamily: 'Inter', fontWeight: 650 },
+            value: { color: '#EDEDED', fontSize: '22px', fontFamily: 'Inter', fontWeight: 700, formatter: (v: string) => fmtBRL(Number(v)) },
             total: {
               show: true,
               label: 'Total Receitas',
               fontSize: '14px',
-              fontFamily: 'Sora',
+              fontFamily: 'Inter',
               fontWeight: 650,
               color: '#8a8a8a',
               // eslint-disable-next-line @typescript-eslint/no-explicit-any

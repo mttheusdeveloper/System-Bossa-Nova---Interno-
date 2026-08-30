@@ -35,7 +35,7 @@ export function AnnualSummaryModal() {
         </div>
         <div className="overflow-x-auto overflow-y-auto flex-1">
           <table className="w-full">
-            <thead className="bg-black/75 backdrop-blur-sm sticky top-0">
+            <thead className="bg-[var(--surface)] sticky top-0">
               <tr>
                 <th>Mês</th>
                 <th className="text-right">Fat. Bruto</th>
@@ -98,7 +98,7 @@ export function AnnualSummaryModal() {
                       </td>
                       <td className={`text-right mono ${moneyClass(roiValue)}`}>{roiDisplay}</td>
                       <td className={`text-right mono ${lucratividadeClass(lucro)}`}>{fmtPct(lucro)}</td>
-                      <td className={`text-right mono ${cresc >= 0 ? 'text-fuchsia-300' : 'text-rose-300'}`}>{fmtPct(cresc)}</td>
+                      <td className={`text-right mono ${cresc >= 0 ? 'money-pos' : 'money-neg'}`}>{fmtPct(cresc)}</td>
                     </tr>
                   );
                 })

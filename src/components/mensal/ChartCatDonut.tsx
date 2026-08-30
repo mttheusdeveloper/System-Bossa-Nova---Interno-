@@ -102,22 +102,22 @@ export function ChartCatDonut({ dreContext }: { dreContext: DreContext }) {
 
 function DreTooltip({ grupo, pctFatia, periodoLabel }: { grupo: DreContext['grupos'][number]; pctFatia: string; periodoLabel: string }) {
   return (
-    <div style={{ minWidth: 320, maxWidth: 'min(820px, calc(100vw - 24px))', padding: 12, background: '#111', border: '1px solid #2a2a2a', borderRadius: 8, boxShadow: '0 10px 30px rgba(0,0,0,.45)' }}>
-      <div style={{ fontSize: 11, color: '#737373', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>
+    <div style={{ minWidth: 320, maxWidth: 'min(820px, calc(100vw - 24px))', padding: 12, background: 'var(--bg-0)', border: '1px solid var(--border)', borderRadius: 8, boxShadow: '0 10px 30px rgba(0,0,0,.45)' }}>
+      <div style={{ fontSize: 11, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>
         {grupo.label} {pctFatia ? `• ${pctFatia} da pizza` : ''}
       </div>
-      <div style={{ fontSize: 11, color: '#a3a3a3', margin: '-4px 0 8px 0' }}>Período: {grupo.periodo || periodoLabel || ''}</div>
+      <div style={{ fontSize: 11, color: 'var(--muted-2)', margin: '-4px 0 8px 0' }}>Período: {grupo.periodo || periodoLabel || ''}</div>
       {grupo.totalItem ? (
         <TooltipLine item={grupo.totalItem} />
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 14, margin: '5px 0', alignItems: 'start' }}>
-          <span style={{ color: '#e5e5e5' }}>{grupo.label}</span>
-          <span style={{ fontFamily: 'IBM Plex Mono,monospace', color: moneyColor(grupo.value), whiteSpace: 'nowrap' }}>{fmtBRL2(grupo.value)}</span>
+          <span style={{ color: 'var(--text)' }}>{grupo.label}</span>
+          <span style={{ fontFamily: 'Inter,sans-serif', color: moneyColor(grupo.value), whiteSpace: 'nowrap' }}>{fmtBRL2(grupo.value)}</span>
         </div>
       )}
       {grupo.detalhes.length > 0 && (
         <>
-          <div style={{ height: 1, background: '#2a2a2a', margin: '9px 0' }} />
+          <div style={{ height: 1, background: 'var(--border)', margin: '9px 0' }} />
           <div
             style={{
               display: 'grid',
@@ -140,10 +140,10 @@ function DreTooltip({ grupo, pctFatia, periodoLabel }: { grupo: DreContext['grup
 function TooltipLine({ item }: { item: DreItem }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 14, margin: '5px 0', alignItems: 'start' }}>
-      <span style={{ color: '#e5e5e5', maxWidth: 210, whiteSpace: 'normal', lineHeight: 1.25 }}>{item.desc}</span>
-      <span style={{ fontFamily: 'IBM Plex Mono,monospace', color: moneyColor(item.valorOriginal), whiteSpace: 'nowrap', textAlign: 'right' }}>
+      <span style={{ color: 'var(--text)', maxWidth: 210, whiteSpace: 'normal', lineHeight: 1.25 }}>{item.desc}</span>
+      <span style={{ fontFamily: 'Inter,sans-serif', color: moneyColor(item.valorOriginal), whiteSpace: 'nowrap', textAlign: 'right' }}>
         {fmtBRL2(item.valorOriginal)}
-        {item.pct && <span style={{ color: '#a3a3a3', marginLeft: 4 }}>({item.pct})</span>}
+        {item.pct && <span style={{ color: 'var(--muted-2)', marginLeft: 4 }}>({item.pct})</span>}
       </span>
     </div>
   );

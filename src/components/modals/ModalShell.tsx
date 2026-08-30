@@ -13,7 +13,7 @@ export function ModalShell({ onBackdropClick, children }: ModalShellProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" onClick={handleClick}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={handleClick}>
       {children}
     </div>
   );

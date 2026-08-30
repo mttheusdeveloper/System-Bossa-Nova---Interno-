@@ -68,7 +68,7 @@ export function DreModal() {
         </div>
         <div className="overflow-y-auto flex-1 annual-summary-scroll">
           <table className="w-full">
-            <thead className="bg-black/75 backdrop-blur-sm sticky top-0">
+            <thead className="bg-[var(--surface)] sticky top-0">
               <tr>
                 <th>Grupo</th>
                 <th>Descrição</th>
@@ -92,7 +92,7 @@ export function DreModal() {
               ) : (
                 rowsToRender.map((row, i) =>
                   row.type === 'group' ? (
-                    <tr key={i} className="bg-[#0a0a0a] dre-group-row">
+                    <tr key={i} className="bg-[var(--bg-1)] dre-group-row">
                       <td colSpan={4} className="text-[.68rem] uppercase tracking-[.14em] text-[var(--muted)] font-semibold">
                         {row.group}
                       </td>

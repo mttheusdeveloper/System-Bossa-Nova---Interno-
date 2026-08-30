@@ -59,7 +59,7 @@ export function TxModal() {
         </div>
         <div className="modal-table-wrap flex-1">
           <table className="w-full annual-summary-table">
-            <thead className="bg-black/75 backdrop-blur-sm sticky top-0">
+            <thead className="bg-[var(--surface)] sticky top-0">
               <tr>
                 {tx.headCells.map((h) => (
                   <th key={h}>{h}</th>

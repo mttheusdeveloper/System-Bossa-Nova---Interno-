@@ -26,7 +26,7 @@ export function lucroPointAnnotations(items: Array<{ label: string; value: numbe
         marker: {
           size: 6,
           fillColor: lucratividadeColor(n),
-          strokeColor: '#0a0a0a',
+          strokeColor: '#0E0E0E',
           strokeWidth: 2,
           radius: 99,
         },

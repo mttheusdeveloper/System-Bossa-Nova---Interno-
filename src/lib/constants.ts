@@ -56,16 +56,17 @@ export const ROI_FIELD_KEYS = [
 // Não usa lucratividade/crescimento aqui porque fórmulas de meses vazios podem virar 0% ou -100% e parecerem bugs no gráfico.
 export const ANUAL_VALUE_KEYS = [A.fb, A.fl, A.caixa, A.eb, A.custos, A.inv, A.roi, A.endiv];
 
+// Paleta do tema "energy-dashboard": fundo quase preto, acento laranja.
 export const CHART_THEME = {
-  primary: '#f5f5f5',
-  secondary: '#94a3b8',
-  accent: '#c4b5fd',
-  accent2: '#93c5fd',
-  positive: '#86efac',
-  negative: '#fca5a5',
-  warning: '#fde68a',
-  cost: '#f0ab7a',
-  muted: '#a1a1aa',
+  primary: '#FF8A3D',
+  secondary: '#9A9A9A',
+  accent: '#A78BFA',
+  accent2: '#60A5FA',
+  positive: '#34D399',
+  negative: '#F87171',
+  warning: '#FBBF24',
+  cost: '#FF6B00',
+  muted: '#7A7A7A',
 } as const;
 
 export const PERFORMANCE_MODE = true;
@@ -73,18 +74,18 @@ export const UI_RENDER_CHUNK_SIZE = 320;
 export const LUCRO_META = 27.5;
 
 export const MONTH_CHART_COLORS: Record<string, string> = {
-  janeiro: '#fafafa',
-  fevereiro: '#d4d4d8',
-  marco: '#a1a1aa',
-  abril: '#94a3b8',
-  maio: '#c4b5fd',
-  junho: '#93c5fd',
-  julho: '#86efac',
-  agosto: '#fde68a',
-  setembro: '#fca5a5',
-  outubro: '#f9a8d4',
-  novembro: '#fdba74',
-  dezembro: '#67e8f9',
+  janeiro: '#FF6B00',
+  fevereiro: '#FF8A3D',
+  marco: '#FBBF24',
+  abril: '#34D399',
+  maio: '#22B8A8',
+  junho: '#60A5FA',
+  julho: '#A78BFA',
+  agosto: '#F472B6',
+  setembro: '#F87171',
+  outubro: '#FB923C',
+  novembro: '#EAB308',
+  dezembro: '#38BDF8',
 };
 
 export const OPENAI_MODEL_DEFAULT = 'gpt-5.4-mini';

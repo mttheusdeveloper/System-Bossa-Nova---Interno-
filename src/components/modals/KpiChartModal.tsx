@@ -59,7 +59,7 @@ export function KpiChartModal() {
     return buildBarOptions([{ name: cfg.seriesName, data: items.map((i) => i.value) }], items.map((i) => i.label), [cfg.color], false, {
       chart: { height: 360 },
       plotOptions: { bar: { columnWidth: '52%' } },
-      yaxis: { labels: { style: { colors: '#737373', fontFamily: 'IBM Plex Mono', fontSize: '11px' }, formatter: (v: number) => 'R$ ' + fmtK(v) } },
+      yaxis: { labels: { style: { colors: '#9A9A9A', fontFamily: 'Inter', fontSize: '11px' }, formatter: (v: number) => 'R$ ' + fmtK(v) } },
       tooltip: { theme: 'dark', y: { formatter: (v: number | null) => (v == null ? 'Sem dados' : fmtBRL2(v)) } },
     });
   }, [cfg, items]);

@@ -7,9 +7,9 @@ const STATUS_TEXT: Record<string, string> = {
 };
 
 const STATUS_CLASS: Record<string, string> = {
-  connecting: 'text-amber-300',
-  connected: 'text-emerald-300',
-  error: 'text-rose-400',
+  connecting: 'money-warn',
+  connected: 'money-pos',
+  error: 'money-neg',
 };
 
 export function StatusCard() {
