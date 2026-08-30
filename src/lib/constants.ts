@@ -69,8 +69,6 @@ export const CHART_THEME = {
   muted: '#7A7A7A',
 } as const;
 
-export const PERFORMANCE_MODE = true;
-export const UI_RENDER_CHUNK_SIZE = 320;
 export const LUCRO_META = 27.5;
 
 export const MONTH_CHART_COLORS: Record<string, string> = {

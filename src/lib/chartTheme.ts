@@ -1,4 +1,4 @@
-import { CHART_THEME, PERFORMANCE_MODE } from './constants';
+import { CHART_THEME } from './constants';
 import { prefersReducedMotion } from './debounce';
 
 export const PALETTE = [
@@ -21,20 +21,21 @@ export const baseAxis = {
   axisTicks: { show: false },
 };
 
+// Animação de "subida" dos gráficos (barras crescendo da base, linhas/áreas
+// desenhando ao entrar) — sempre ligada, só desliga se o usuário pedir menos
+// movimento no SO (prefers-reduced-motion).
 const MOTION_EASE = 'easeinout';
-const MOTION_DURATION = PERFORMANCE_MODE ? 120 : 420;
-const CHART_MOTION = PERFORMANCE_MODE
-  ? { enabled: false }
-  : {
-      enabled: true,
-      easing: MOTION_EASE,
-      speed: MOTION_DURATION,
-      animateGradually: { enabled: false },
-      dynamicAnimation: { enabled: true, speed: 300 },
-    };
+const MOTION_DURATION = 550;
+const CHART_MOTION = {
+  enabled: true,
+  easing: MOTION_EASE,
+  speed: MOTION_DURATION,
+  animateGradually: { enabled: true, delay: 120 },
+  dynamicAnimation: { enabled: true, speed: 350 },
+};
 
 export function chartMotionOptions() {
-  return PERFORMANCE_MODE || prefersReducedMotion() ? { enabled: false } : CHART_MOTION;
+  return prefersReducedMotion() ? { enabled: false } : CHART_MOTION;
 }
 
 // Deep-ish merge para objetos de opções do ApexCharts (arrays são substituídos, não mesclados).
