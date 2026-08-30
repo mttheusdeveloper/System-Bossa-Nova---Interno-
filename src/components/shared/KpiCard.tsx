@@ -19,7 +19,7 @@ const TONE_SHADOW: Record<KpiTone, string> = {
 interface KpiCardProps {
   icon: ReactNode;
   label: string;
-  value: string;
+  value: ReactNode;
   tone?: KpiTone;
   pillText?: string;
   sub?: ReactNode;

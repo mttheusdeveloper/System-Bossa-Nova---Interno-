@@ -1,6 +1,7 @@
 import { fmtBRL, fmtPct } from '../../lib/format';
 import { LUCRO_META } from '../../lib/constants';
 import { KpiCard } from '../shared/KpiCard';
+import { AnimatedNumber } from '../shared/AnimatedNumber';
 import { useModals } from '../../state/ModalsContext';
 import type { AnualChartsData } from '../../hooks/useAnualChartsData';
 
@@ -11,18 +12,24 @@ export function KpiGridAnual({ kpis }: { kpis: AnualChartsData['kpis'] }) {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
-      <KpiCard icon="$" label="Fat. Bruto" value={fmtBRL(kpis.totFB)} tone="orange" />
-      <KpiCard icon="$" label="Caixa" value={fmtBRL(kpis.totFL)} tone="info" onClick={() => openKpiChart('saldo')} />
-      <KpiCard icon="▲" label="EBITDA" value={fmtBRL(kpis.totEB)} tone={kpis.totEB >= 0 ? 'positive' : 'negative'} />
+      <KpiCard icon="$" label="Fat. Bruto" value={<AnimatedNumber value={kpis.totFB} formatter={fmtBRL} />} tone="orange" />
+      <KpiCard
+        icon="$"
+        label="Caixa"
+        value={<AnimatedNumber value={kpis.totFL} formatter={fmtBRL} />}
+        tone="info"
+        onClick={() => openKpiChart('saldo')}
+      />
+      <KpiCard icon="▲" label="EBITDA" value={<AnimatedNumber value={kpis.totEB} formatter={fmtBRL} />} tone={kpis.totEB >= 0 ? 'positive' : 'negative'} />
       <KpiCard
         icon="%"
         label="Lucratividade Média"
-        value={fmtPct(kpis.lucroAvg)}
+        value={<AnimatedNumber value={kpis.lucroAvg} formatter={fmtPct} />}
         tone={kpis.lucroAvg >= LUCRO_META ? 'positive' : 'negative'}
         onClick={() => openKpiChart('anualLucratividade')}
       />
-      <KpiCard icon="↗" label="Investimentos" value={fmtBRL(kpis.totInv)} tone="orange" />
-      <KpiCard icon="◌" label="Rendimento" value={fmtBRL(kpis.totRoi)} tone={kpis.totRoi >= 0 ? 'positive' : 'negative'} />
+      <KpiCard icon="↗" label="Investimentos" value={<AnimatedNumber value={kpis.totInv} formatter={fmtBRL} />} tone="orange" />
+      <KpiCard icon="◌" label="Rendimento" value={<AnimatedNumber value={kpis.totRoi} formatter={fmtBRL} />} tone={kpis.totRoi >= 0 ? 'positive' : 'negative'} />
     </div>
   );
 }
