@@ -82,6 +82,28 @@ export function categoryChartName(row: RawRow): string {
   return current;
 }
 
+export function isInvestmentRow(row: RawRow): boolean {
+  const hay = normKey([String(row?.[C.cat] || ''), String(row?.[C.desc] || ''), String(row?.[C.conta] || '')].join(' '));
+  if (!hay.trim()) return false;
+
+  // Regra rígida: evita falsos positivos como "Criativos", que contém "ativo" no meio da palavra.
+  const patterns = [
+    /\binvest(?:imento|imentos|ir|ido|ida)?\b/,
+    /\baporte(?:s)?\b/,
+    /\bcapex\b/,
+    /\bequip(?:amento|amentos)?\b/,
+    /\binfra(?:estrutura)?\b/,
+    /\bativo(?:s)?\b/,
+    /\bimobiliz(?:ado|ados|acao|acoes)?\b/,
+    /\bferramenta(?:s)?\b/,
+    /\blicenca(?:s)?\b/,
+    /\bsoftware(?:s)?\b/,
+    /\basset(?:s)?\b/,
+  ];
+
+  return patterns.some((rx) => rx.test(hay));
+}
+
 export function annualRowHasRealFinancialData(row: RawRow): boolean {
   return (
     ANUAL_VALUE_KEYS.some((k) => Math.abs(num(firstExistingValue(row, [k]))) > 0) || Math.abs(annualRoiRaw(row)) > 0

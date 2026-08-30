@@ -55,8 +55,8 @@ export function legendOptions(extra: Record<string, any> = {}) {
   const base = {
     show: true,
     showForSingleSeries: true,
-    position: 'bottom',
-    horizontalAlign: 'center',
+    position: 'bottom' as const,
+    horizontalAlign: 'center' as const,
     floating: false,
     fontSize: '12px',
     fontFamily: 'Sora',

@@ -1,8 +1,14 @@
 import { DashboardProvider, useDashboard } from './state/DashboardContext';
+import { ModalsProvider } from './state/ModalsContext';
 import { Sidebar } from './components/layout/Sidebar';
 import { Topbar } from './components/layout/Topbar';
 import { MensalTab } from './components/mensal/MensalTab';
 import { AnualTab } from './components/anual/AnualTab';
+import { TxModal } from './components/modals/TxModal';
+import { KpiChartModal } from './components/modals/KpiChartModal';
+import { DreModal } from './components/modals/DreModal';
+import { AnnualSummaryModal } from './components/modals/AnnualSummaryModal';
+import { AiChatWidget } from './components/ai/AiChatWidget';
 
 function DashboardShell() {
   const { state } = useDashboard();
@@ -14,6 +20,11 @@ function DashboardShell() {
         <Topbar />
         {state.tab === 'mensal' ? <MensalTab /> : <AnualTab />}
       </main>
+      <TxModal />
+      <KpiChartModal />
+      <DreModal />
+      <AnnualSummaryModal />
+      <AiChatWidget />
     </div>
   );
 }
@@ -21,7 +32,9 @@ function DashboardShell() {
 function App() {
   return (
     <DashboardProvider>
-      <DashboardShell />
+      <ModalsProvider>
+        <DashboardShell />
+      </ModalsProvider>
     </DashboardProvider>
   );
 }

@@ -1,5 +1,6 @@
 import { ACTIVE_MONTHS, C } from './constants';
 import { num, numPct, normKey, firstExistingValue, firstExistingText } from './parse';
+import { fmtBRL2 } from './format';
 import { monthCfg } from './months';
 import type { DreGroup, DreItem, DreContext, RawRow, TxModalItem } from '../types';
 
@@ -196,4 +197,41 @@ export function buildDreContext(dreRows: RawRow[], mesesDreInput: string[]): Dre
   ].filter((g): g is DreGroup => !!g);
 
   return { grupos: gruposDre, totalReceitas: totalReceitasDre, periodoLabel: mesesDreLabel, meses: mesesDre };
+}
+
+export interface DreModalRow {
+  type: 'group' | 'item';
+  group: string;
+  tipo?: string;
+  desc?: string;
+  valor?: number;
+  pct?: string;
+}
+
+// Porta de buildDreModalRows() (script.js:2775-2819): achata os grupos em
+// linhas de cabeçalho + linhas de item pra tabela do modal "DRE completa".
+export function buildDreModalRows(dreContext: DreContext): DreModalRow[] {
+  const rows: DreModalRow[] = [];
+
+  dreContext.grupos.forEach((grupo) => {
+    rows.push({ type: 'group', group: grupo.label });
+
+    const makeItem = (item: DreItem, tipo: string): DreModalRow => ({
+      type: 'item',
+      group: grupo.label,
+      tipo,
+      desc: item.desc,
+      valor: item.valorOriginal,
+      pct: item.pct || '-',
+    });
+
+    if (grupo.totalItem) rows.push(makeItem(grupo.totalItem, 'Total'));
+    grupo.detalhes.forEach((item) => rows.push(makeItem(item, 'Item')));
+  });
+
+  return rows;
+}
+
+export function dreModalHaystack(row: DreModalRow): string {
+  return normKey([row.group || '', row.tipo || '', row.desc || '', row.valor ? fmtBRL2(row.valor) : '', row.pct || ''].join(' '));
 }

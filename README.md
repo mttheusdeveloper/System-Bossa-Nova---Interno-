@@ -1,32 +1,29 @@
-# React + TypeScript + Vite
+# Virtus Ads Finance — Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Dashboard financeiro da Virtus Ads: React + TypeScript + Vite, Tailwind v4, ApexCharts e Supabase.
 
-Currently, two official plugins are available:
+## Setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+cp .env.example .env   # preencha VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Scripts
+
+- `npm run dev` — servidor de desenvolvimento
+- `npm run build` — build de produção (`tsc -b && vite build`)
+- `npm run preview` — serve o build de produção localmente
+
+## Estrutura
+
+- `src/lib/` — funções puras (formatters, parsers, regras de negócio da DRE/ROI/filtros)
+- `src/hooks/` — dados derivados (`useMensalDerived`, `useAnualDerived`, `useDreContext`, ...) e o hook de gráficos (`useApexChart`)
+- `src/state/` — reducer/contexto do dashboard e dos modais
+- `src/components/` — `layout/`, `mensal/`, `anual/`, `charts/`, `modals/`, `ai/`
+- `legacy-static/` — versão anterior em HTML/JS puro, mantida como referência
+
+## Legado
+
+Este projeto substituiu o dashboard estático (`legacy-static/`). A migração está documentada no histórico de commits.
