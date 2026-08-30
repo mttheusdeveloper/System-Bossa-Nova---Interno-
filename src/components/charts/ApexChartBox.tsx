@@ -29,7 +29,7 @@ export function ApexChartBox({ id, options, className, chartRef }: ApexChartBoxP
       className={className}
       initial={{ clipPath: 'inset(100% 0 0 0)' }}
       animate={{ clipPath: 'inset(0% 0 0 0)' }}
-      transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
+      transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
     >
       <div ref={containerRef} className="h-full w-full" />
     </motion.div>
