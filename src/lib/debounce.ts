@@ -1,0 +1,11 @@
+export function debounce<Args extends unknown[]>(fn: (...args: Args) => void, delay = 120): (...args: Args) => void {
+  let t: ReturnType<typeof setTimeout>;
+  return (...args: Args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), delay);
+  };
+}
+
+export function prefersReducedMotion(): boolean {
+  return typeof window !== 'undefined' && !!window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
