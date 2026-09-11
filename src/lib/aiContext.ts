@@ -94,7 +94,7 @@ export function buildDashboardAIContext(mensalFilters: MensalFilterState, mensal
     .slice(0, 20);
 
   return {
-    dashboard: 'Virtus Ads Finance',
+    dashboard: 'Bossa Nova Finance',
     geradoEm: new Date().toLocaleString('pt-BR'),
     filtrosAtuais: {
       mesesSelecionados: selectedLabels,

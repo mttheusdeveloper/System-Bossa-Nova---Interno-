@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useScrollLock } from '../hooks/useScrollLock';
 import type { KpiOrigin, TxModalItem } from '../types';
+import type { EbookClient } from '../lib/googleSheets';
 
 export interface TxModalState {
   open: boolean;
@@ -41,6 +42,10 @@ interface ModalsContextValue {
   annualSummaryOpen: boolean;
   openAnnualSummary: () => void;
   closeAnnualSummary: () => void;
+
+  contractDetail: EbookClient | null;
+  openContractDetail: (client: EbookClient) => void;
+  closeContractDetail: () => void;
 }
 
 const ModalsContext = createContext<ModalsContextValue | null>(null);
@@ -51,6 +56,7 @@ export function ModalsProvider({ children }: { children: ReactNode }) {
   const [kpiChartOrigin, setKpiChartOrigin] = useState<KpiOrigin>('caixa');
   const [dreOpen, setDreOpen] = useState(false);
   const [annualSummaryOpen, setAnnualSummaryOpen] = useState(false);
+  const [contractDetail, setContractDetail] = useState<EbookClient | null>(null);
 
   const openTx = (cfg: Omit<TxModalState, 'open'>) => setTx({ ...cfg, open: true });
   const closeTx = () => setTx((prev) => ({ ...prev, open: false }));
@@ -67,10 +73,13 @@ export function ModalsProvider({ children }: { children: ReactNode }) {
   const openAnnualSummary = () => setAnnualSummaryOpen(true);
   const closeAnnualSummary = () => setAnnualSummaryOpen(false);
 
-  const anyOpen = tx.open || kpiChartOpen || dreOpen || annualSummaryOpen;
+  const openContractDetail = (client: EbookClient) => setContractDetail(client);
+  const closeContractDetail = () => setContractDetail(null);
+
+  const anyOpen = tx.open || kpiChartOpen || dreOpen || annualSummaryOpen || !!contractDetail;
   useScrollLock(anyOpen);
 
-  // Porta do handler global de Escape (script.js:3371): fecha os 4 modais.
+  // Porta do handler global de Escape (script.js:3371): fecha os modais.
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (e.key !== 'Escape') return;
@@ -78,6 +87,7 @@ export function ModalsProvider({ children }: { children: ReactNode }) {
       closeDre();
       closeAnnualSummary();
       closeKpiChart();
+      closeContractDetail();
     }
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
@@ -98,8 +108,11 @@ export function ModalsProvider({ children }: { children: ReactNode }) {
       annualSummaryOpen,
       openAnnualSummary,
       closeAnnualSummary,
+      contractDetail,
+      openContractDetail,
+      closeContractDetail,
     }),
-    [tx, kpiChartOpen, kpiChartOrigin, dreOpen, annualSummaryOpen],
+    [tx, kpiChartOpen, kpiChartOrigin, dreOpen, annualSummaryOpen, contractDetail],
   );
 
   return <ModalsContext.Provider value={value}>{children}</ModalsContext.Provider>;

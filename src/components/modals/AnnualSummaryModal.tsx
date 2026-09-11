@@ -9,6 +9,9 @@ import { useDashboard } from '../../state/DashboardContext';
 import { useModals } from '../../state/ModalsContext';
 import { useAnualDerived } from '../../hooks/useAnualDerived';
 import { useTxModalActions } from '../../hooks/useTxModalActions';
+import { OriginButton } from '../ui/origin-button';
+
+const CLOSE_BTN_CLASS = 'h-auto py-1.5 px-3 rounded-md text-[.74rem] font-semibold gap-1';
 
 // Porta da tabela de #a-table-body dentro de #modal-anual-summary (script.js:2011-2029, 2906-2921).
 export function AnnualSummaryModal() {
@@ -29,9 +32,9 @@ export function AnnualSummaryModal() {
             <div className="section-eyebrow mb-1">Annual ledger</div>
             <h2 className="font-semibold tracking-[-0.03em] text-lg">Resumo Financeiro 2026</h2>
           </div>
-          <button className="chip-btn" onClick={closeAnnualSummary}>
+          <OriginButton className={CLOSE_BTN_CLASS} onClick={closeAnnualSummary}>
             ✕ Fechar
-          </button>
+          </OriginButton>
         </div>
         <div className="overflow-x-auto overflow-y-auto flex-1">
           <table className="w-full">

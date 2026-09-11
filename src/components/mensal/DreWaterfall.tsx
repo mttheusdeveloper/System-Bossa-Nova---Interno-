@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { fmtBRL2 } from '../../lib/format';
 import { moneyClass } from '../../lib/money';
 import type { DreGroup } from '../../types';
@@ -5,6 +7,27 @@ import type { DreGroup } from '../../types';
 // Porta de renderDreWaterfall() (script.js:2622-2652) — barras horizontais
 // hand-rolled (não é ApexCharts) mostrando a cascata Receitas → Resultado.
 export function DreWaterfall({ grupos, periodoLabel }: { grupos: DreGroup[]; periodoLabel: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+
+  // whileInView do framer-motion não disparava aqui (mesmo bug do
+  // ChartRevealBox) — IntersectionObserver manual é mais previsível.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.3 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const byLabel = (label: string) => grupos.find((g) => g.label.toUpperCase() === label);
   const rows = (
     [
@@ -20,9 +43,9 @@ export function DreWaterfall({ grupos, periodoLabel }: { grupos: DreGroup[]; per
   const maxVal = Math.max(1, ...rows.map((r) => Math.abs(r.item.value)));
 
   return (
-    <>
+    <div ref={containerRef}>
       <div className="text-[.7rem] text-[var(--muted)] mb-3">Período: {periodoLabel || '-'}</div>
-      {rows.map((r) => {
+      {rows.map((r, i) => {
         const original = r.item.totalItem ? r.item.totalItem.valorOriginal : r.item.value;
         const width = Math.max(3, (Math.abs(r.item.value) / maxVal) * 100);
         const cls = original < 0 || r.kind === 'neg' ? 'neg' : 'pos';
@@ -32,12 +55,17 @@ export function DreWaterfall({ grupos, periodoLabel }: { grupos: DreGroup[]; per
               {r.label}
             </div>
             <div className="waterfall-track">
-              <div className={`waterfall-fill ${cls}`} style={{ width: `${width}%` }} />
+              <motion.div
+                className={`waterfall-fill ${cls}`}
+                initial={{ width: 0 }}
+                animate={inView ? { width: `${width}%` } : undefined}
+                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: i * 0.08 }}
+              />
             </div>
             <div className={`mono text-xs text-right ${moneyClass(original, r.kind === 'neg')}`}>{fmtBRL2(original)}</div>
           </div>
         );
       })}
-    </>
+    </div>
   );
 }

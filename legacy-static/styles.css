@@ -1,3 +1,10 @@
+@font-face{
+  font-family:'Futura';
+  src:local('Futura PT Book'),local('Futura PT'),local('Futura'),local('Futura-Medium'),local('Century Gothic');
+  font-style:normal;
+  font-weight:400 800;
+  font-display:swap;
+}
 :root{
     --bg-0:#000000;
     --bg-1:#0a0a0a;
@@ -9,6 +16,9 @@
     --muted:#737373;
     --muted-2:#a3a3a3;
     --accent:#ffffff;
+    --font-body:'Roboto',Arial,sans-serif;
+    --font-heading:'Space Grotesk','Roboto',Arial,sans-serif;
+    --font-accent:'Futura','Space Grotesk','Roboto',Arial,sans-serif;
     /* Grayscale chart palette */
     --g-0:#ffffff;
     --g-1:#d4d4d4;
@@ -18,7 +28,9 @@
     --g-5:#404040;
     --g-6:#262626;
   }
-  *{font-family:'Sora',ui-sans-serif,system-ui,sans-serif;}
+  *{font-family:var(--font-body);}
+  h1,h2,h3,h4,h5,h6,.kpi-value{font-family:var(--font-heading);}
+  .brand-name,.brand-subtitle,.nav-item,.nav-group-header,.section-eyebrow,.kpi-label,.pill,label,table th{font-family:var(--font-accent);}
   html{
     scrollbar-gutter:stable;
   }
@@ -36,7 +48,7 @@
     z-index:0;
     pointer-events:none;
     background-image:
-      url('assets/logo-virtus-bg-fina.png'),
+      url('assets/logo-bossa.png'),
       radial-gradient(circle at center, rgba(255,255,255,.055) 0%, rgba(255,255,255,.018) 32%, transparent 63%),
       radial-gradient(circle at center, rgba(255,255,255,.020) 0 1px, transparent 1.35px);
     background-repeat:no-repeat, no-repeat, repeat;
@@ -66,7 +78,7 @@
   }
   #modal-tx, #modal-dre, #modal-anual-summary, #modal-kpi-chart{overscroll-behavior:contain;}
   #modal-tx .overflow-y-auto, #modal-dre .overflow-y-auto, #modal-anual-summary .overflow-y-auto, #modal-kpi-chart .overflow-y-auto{overscroll-behavior:contain;}
-  .mono{font-family:'IBM Plex Mono',monospace;}
+  .mono{font-family:'Space Grotesk','Roboto',Arial,sans-serif;}
 
   .modal-toolbar{background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0));}
   .modal-search-shell, .search-shell{
@@ -394,7 +406,7 @@
   }
   .apexcharts-legend-text{
     color:#f5f5f5 !important;
-    font-family:'Sora',ui-sans-serif,system-ui,sans-serif !important;
+    font-family:'Roboto',Arial,sans-serif !important;
     font-size:.73rem !important;
     font-weight:650 !important;
     line-height:1 !important;
@@ -790,7 +802,7 @@
   border:1px solid rgba(255,255,255,.12);
   box-shadow:0 16px 40px rgba(0,0,0,.38);
   color:#f5f5f5;
-  font-family:'Sora',ui-sans-serif,system-ui,sans-serif;
+  font-family:'Roboto',Arial,sans-serif;
 }
 .safe-chart-tooltip-month{
   color:#a3a3a3;
@@ -809,7 +821,7 @@
   line-height:1.2;
 }
 .safe-chart-tooltip-row strong{
-  font-family:'IBM Plex Mono',monospace;
+  font-family:'Space Grotesk','Roboto',Arial,sans-serif;
   font-size:.72rem;
   color:#fff;
   white-space:nowrap;

@@ -1,5 +1,6 @@
 import { ACTIVE_MONTHS } from '../../lib/constants';
 import { useDashboard } from '../../state/DashboardContext';
+import { MonthSelect } from './MonthSelect';
 
 export function AnualFilters() {
   const { state, dispatch } = useDashboard();
@@ -10,22 +11,10 @@ export function AnualFilters() {
       <div className="flex flex-wrap items-center gap-3">
         <div>
           <div className="kpi-label mb-1">Janela</div>
-          <div className="flex items-center gap-1">
-            <select className="w-24" value={mMin} onChange={(e) => dispatch({ type: 'SET_ANUAL_RANGE', mMin: +e.target.value, mMax })}>
-              {ACTIVE_MONTHS.map((m, i) => (
-                <option key={m.key} value={i}>
-                  {m.short}
-                </option>
-              ))}
-            </select>
+          <div className="flex items-center gap-2">
+            <MonthSelect value={mMin} options={ACTIVE_MONTHS} onChange={(i) => dispatch({ type: 'SET_ANUAL_RANGE', mMin: i, mMax })} />
             <span className="text-[var(--muted)]">→</span>
-            <select className="w-24" value={mMax} onChange={(e) => dispatch({ type: 'SET_ANUAL_RANGE', mMin, mMax: +e.target.value })}>
-              {ACTIVE_MONTHS.map((m, i) => (
-                <option key={m.key} value={i}>
-                  {m.short}
-                </option>
-              ))}
-            </select>
+            <MonthSelect value={mMax} options={ACTIVE_MONTHS} onChange={(i) => dispatch({ type: 'SET_ANUAL_RANGE', mMin, mMax: i })} />
           </div>
         </div>
         <div className="ml-auto">

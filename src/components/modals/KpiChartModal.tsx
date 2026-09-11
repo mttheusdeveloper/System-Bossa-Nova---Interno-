@@ -9,7 +9,10 @@ import { useDashboard } from '../../state/DashboardContext';
 import { useModals } from '../../state/ModalsContext';
 import { useMensalDerived } from '../../hooks/useMensalDerived';
 import { useAnualDerived } from '../../hooks/useAnualDerived';
+import { OriginButton } from '../ui/origin-button';
 import type { KpiModalItem, KpiOrigin } from '../../types';
+
+const CLOSE_BTN_CLASS = 'h-auto py-1.5 px-3 rounded-md text-[.74rem] font-semibold gap-1';
 
 interface KpiOriginConfig {
   label: string;
@@ -59,7 +62,7 @@ export function KpiChartModal() {
     return buildBarOptions([{ name: cfg.seriesName, data: items.map((i) => i.value) }], items.map((i) => i.label), [cfg.color], false, {
       chart: { height: 360 },
       plotOptions: { bar: { columnWidth: '52%' } },
-      yaxis: { labels: { style: { colors: '#9A9A9A', fontFamily: 'Inter', fontSize: '11px' }, formatter: (v: number) => 'R$ ' + fmtK(v) } },
+      yaxis: { labels: { style: { colors: '#9A9A9A', fontFamily: 'Roboto', fontSize: '11px' }, formatter: (v: number) => 'R$ ' + fmtK(v) } },
       tooltip: { theme: 'dark', y: { formatter: (v: number | null) => (v == null ? 'Sem dados' : fmtBRL2(v)) } },
     });
   }, [cfg, items]);
@@ -78,9 +81,9 @@ export function KpiChartModal() {
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xs text-[var(--muted)]">12 meses exibidos • {ativos} com dados</span>
-            <button className="chip-btn" onClick={closeKpiChart}>
+            <OriginButton className={CLOSE_BTN_CLASS} onClick={closeKpiChart}>
               ✕ Fechar
-            </button>
+            </OriginButton>
           </div>
         </div>
         <div className="px-6 py-5 flex-1 overflow-y-auto">

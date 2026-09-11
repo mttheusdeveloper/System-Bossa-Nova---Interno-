@@ -3,7 +3,11 @@ import { C } from '../../lib/constants';
 import { monthLabel } from '../../lib/months';
 import { useDashboard } from '../../state/DashboardContext';
 import { CategorySelect } from './CategorySelect';
+import { OriginButton } from '../ui/origin-button';
 import type { MensalDerived } from '../../hooks/useMensalDerived';
+
+// O mês selecionado mantém o destaque azul estático usado no restante do site.
+const CHIP_CLASS = 'monthly-month-chip h-auto py-1.5 px-3 rounded-md text-[.74rem] font-semibold gap-1 [--ic-foreground:#5CABC4]';
 
 export function MensalFilters({ mensalDerived }: { mensalDerived: MensalDerived }) {
   const { state, dispatch } = useDashboard();
@@ -28,13 +32,14 @@ export function MensalFilters({ mensalDerived }: { mensalDerived: MensalDerived 
           <div className="flex gap-1 flex-wrap">
             {mesesDisp.length ? (
               mesesDisp.map((key) => (
-                <button
+                <OriginButton
                   key={key}
-                  className={`chip-btn ${mesesSel.has(key) ? 'active' : ''}`}
+                  className={CHIP_CLASS}
+                  active={mesesSel.has(key)}
                   onClick={() => dispatch({ type: 'TOGGLE_MONTH_CHIP', key })}
                 >
                   {monthLabel(key)}
-                </button>
+                </OriginButton>
               ))
             ) : (
               <span className="text-xs text-[var(--muted)]">Sem dados</span>

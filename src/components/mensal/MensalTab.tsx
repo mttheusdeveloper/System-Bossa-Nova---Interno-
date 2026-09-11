@@ -1,4 +1,5 @@
 import { useDashboard } from '../../state/DashboardContext';
+import { ChartRevealBox } from '../charts/ChartRevealBox';
 import { useMensalDerived } from '../../hooks/useMensalDerived';
 import { useMensalKpis, useCaixaChartItems } from '../../hooks/useMensalKpis';
 import { useDreContext } from '../../hooks/useDreContext';
@@ -24,7 +25,7 @@ export function MensalTab() {
   const monthComparison = useMonthComparison(state.mensalFilters, state.anualRows);
 
   return (
-    <section className="space-y-6">
+    <section className="mensal-page space-y-5">
       <MensalFilters mensalDerived={mensalDerived} />
       <KpiGridMensal kpis={kpis} />
       <ChartComparativo items={caixaChartItems} />
@@ -38,17 +39,23 @@ export function MensalTab() {
         <div className="card p-6 xl:col-span-1">
           <div className="section-eyebrow mb-1">DRE</div>
           <h2 className="font-semibold tracking-[-0.03em] mb-4">DRE</h2>
-          <DreWaterfall grupos={dreContext.grupos} periodoLabel={dreContext.periodoLabel} />
+          <ChartRevealBox>
+            <DreWaterfall grupos={dreContext.grupos} periodoLabel={dreContext.periodoLabel} />
+          </ChartRevealBox>
         </div>
         <div className="card p-6 xl:col-span-1">
           <div className="section-eyebrow mb-1">Mês contra mês</div>
           <h2 className="font-semibold tracking-[-0.03em] mb-4">Comparativo automático</h2>
-          <MomComparison data={monthComparison} />
+          <ChartRevealBox>
+            <MomComparison data={monthComparison} />
+          </ChartRevealBox>
         </div>
         <div className="card p-6 xl:col-span-1">
           <div className="section-eyebrow mb-1">Status</div>
           <h2 className="font-semibold tracking-[-0.03em] mb-4">Semáforo financeiro</h2>
-          <FinanceTraffic data={monthComparison} />
+          <ChartRevealBox>
+            <FinanceTraffic data={monthComparison} />
+          </ChartRevealBox>
         </div>
       </div>
 

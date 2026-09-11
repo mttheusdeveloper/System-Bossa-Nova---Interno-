@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { buildBarOptions } from '../../lib/chartBuilders';
-import { CHART_THEME } from '../../lib/constants';
 import { ApexChartBox } from '../charts/ApexChartBox';
 import { useTxModalActions } from '../../hooks/useTxModalActions';
 import type { CaixaChartItem } from '../../hooks/useMensalKpis';
@@ -13,7 +12,7 @@ export function ChartComparativo({ items }: { items: CaixaChartItem[] }) {
       buildBarOptions(
         [{ name: 'Faturamento Bruto', data: items.map((m) => m.faturamentoBruto) }],
         items.map((m) => m.short),
-        [CHART_THEME.primary],
+        ['#8A9298'],
         false,
         {
           chart: {

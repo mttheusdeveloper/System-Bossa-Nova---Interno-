@@ -1,6 +1,6 @@
-# Virtus Ads Finance — Dashboard
+# Bossa Nova Finance — Dashboard
 
-Dashboard financeiro da Virtus Ads: React + TypeScript + Vite, Tailwind v4, ApexCharts e Supabase.
+Dashboard financeiro da Bossa Nova: React + TypeScript + Vite, Tailwind v4, ApexCharts e Supabase.
 
 ## Setup
 

@@ -13,14 +13,14 @@ export function KpiGridMensal({ kpis }: { kpis: MensalKpis }) {
   const { openTxModal } = useTxModalActions();
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+    <div className="mensal-kpi-grid grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
       <KpiCard
         icon="↑"
         label="Entradas"
         value={<AnimatedNumber value={kpis.eTot} formatter={fmtBRL} />}
         tone="positive"
         pillText={kpis.entPill}
-        sub={<ApexChartBox id="spark-ent" options={buildSparkOptions(kpis.sparkEnt, '#ffffff')} className="-mb-2 -mx-1 opacity-70" />}
+        sub={<ApexChartBox id="spark-ent" options={buildSparkOptions(kpis.sparkEnt, '#34D399')} className="-mb-2 -mx-1 opacity-90" />}
         onClick={() => openTxModal('entrada')}
       />
       <KpiCard
@@ -29,7 +29,7 @@ export function KpiGridMensal({ kpis }: { kpis: MensalKpis }) {
         value={<AnimatedNumber value={kpis.sTot} formatter={fmtBRL} />}
         tone="negative"
         pillText={kpis.saiPill}
-        sub={<ApexChartBox id="spark-sai" options={buildSparkOptions(kpis.sparkSai, '#ffffff')} className="-mb-2 -mx-1 opacity-70" />}
+        sub={<ApexChartBox id="spark-sai" options={buildSparkOptions(kpis.sparkSai, '#FB7185')} className="-mb-2 -mx-1 opacity-90" />}
         onClick={() => openTxModal('saida')}
       />
       <KpiCard

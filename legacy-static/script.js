@@ -1769,7 +1769,7 @@ function renderPercentModalChart({id, title, seriesName, items, color, showMeta=
     .filter(v => v !== null && v !== undefined && Number.isFinite(Number(v)))
     .map(Number);
   const yaxis = {
-    labels:{style:{colors:'#737373',fontFamily:'IBM Plex Mono',fontSize:'11px'},formatter:v=>`${Number(v).toFixed(0)}%`}
+    labels:{style:{colors:'#737373',fontFamily:'Space Grotesk',fontSize:'11px'},formatter:v=>`${Number(v).toFixed(0)}%`}
   };
 
   if(showMeta){
@@ -1780,7 +1780,7 @@ function renderPercentModalChart({id, title, seriesName, items, color, showMeta=
   }
 
   const baseOptions = {
-    chart:{type:'line',height:360,background:'transparent',toolbar:{show:false},foreColor:'#737373',fontFamily:'Sora'},
+    chart:{type:'line',height:360,background:'transparent',toolbar:{show:false},foreColor:'#737373',fontFamily:'Roboto'},
     stroke:{curve:'smooth',lineCap:'round'},
     markers:{size:5,strokeWidth:0,hover:{size:8}},
     dataLabels:{enabled:false},
@@ -1797,7 +1797,7 @@ function renderPercentModalChart({id, title, seriesName, items, color, showMeta=
         label:{
           text:lucroMetaLabel(),
           borderColor:'#d6b77a',
-          style:{background:'#111',color:'#d6b77a',fontSize:'11px',fontFamily:'Sora',fontWeight:800}
+          style:{background:'#111',color:'#d6b77a',fontSize:'11px',fontFamily:'Futura',fontWeight:800}
         }
       }],
       points:lucroPointAnnotations(items)
@@ -1882,7 +1882,7 @@ function openKpiIndicatorModal(origem='caixa'){
       {
         chart:{height:360},
         plotOptions:{bar:{columnWidth:'52%'}},
-        yaxis:{labels:{style:{colors:'#737373',fontFamily:'IBM Plex Mono',fontSize:'11px'},formatter:v=>'R$ '+fmtK(v)}},
+        yaxis:{labels:{style:{colors:'#737373',fontFamily:'Space Grotesk',fontSize:'11px'},formatter:v=>'R$ '+fmtK(v)}},
         tooltip:{theme:'dark',y:{formatter:v=>v == null ? 'Sem dados' : fmtBRL2(v)}}
       }
     );
@@ -2121,7 +2121,7 @@ function destroyChart(id){
   if(el) el.innerHTML='';
 }
 const baseGrid={borderColor:'#1f1f1f',strokeDashArray:4,padding:{left:8,right:8}};
-const baseAxis={labels:{style:{colors:'#737373',fontSize:'11px',fontFamily:'IBM Plex Mono'}},axisBorder:{show:false},axisTicks:{show:false}};
+const baseAxis={labels:{style:{colors:'#737373',fontSize:'11px',fontFamily:'Space Grotesk'}},axisBorder:{show:false},axisTicks:{show:false}};
 function mergeOptions(base, extra={}){
   const out = {...base};
   Object.keys(extra || {}).forEach(k=>{
@@ -2141,7 +2141,7 @@ function legendOptions(extra={}){
     horizontalAlign:'center',
     floating:false,
     fontSize:'12px',
-    fontFamily:'Sora',
+    fontFamily:'Roboto',
     fontWeight:650,
     labels:{colors:'#f5f5f5',useSeriesColors:false},
     markers:{width:10,height:10,radius:99,offsetX:0,offsetY:0},
@@ -2154,7 +2154,7 @@ function legendOptions(extra={}){
 
 function renderArea(id,series,colors,height=300,categories){
   upsert(id,{
-    chart:{type:'area',height,background:'transparent',toolbar:{show:false},foreColor:'#737373',fontFamily:'Sora',animations:chartMotionOptions()},
+    chart:{type:'area',height,background:'transparent',toolbar:{show:false},foreColor:'#737373',fontFamily:'Roboto',animations:chartMotionOptions()},
     series,colors,
     stroke:{curve:'smooth',width:3,lineCap:'round'},
     fill:{type:'gradient',gradient:{shadeIntensity:1,opacityFrom:.55,opacityTo:.02,stops:[0,95],colorStops:colors.map(c=>[
@@ -2164,21 +2164,21 @@ function renderArea(id,series,colors,height=300,categories){
     grid:baseGrid,
     markers:{size:0,hover:{size:6}},
     xaxis:{...baseAxis,categories:categories||Array.from({length:series[0].data.length},(_,i)=>String(i+1))},
-    yaxis:{labels:{style:{colors:'#737373',fontFamily:'IBM Plex Mono',fontSize:'11px'},formatter:v=>'R$ '+fmtK(v)}},
+    yaxis:{labels:{style:{colors:'#737373',fontFamily:'Space Grotesk',fontSize:'11px'},formatter:v=>'R$ '+fmtK(v)}},
     tooltip:{theme:'dark',y:{formatter:v=>fmtBRL2(v)}},
     legend:legendOptions({markers:{width:10,height:10,radius:99}}),
   });
 }
 function renderBar(id,series,categories,colors,grouped=false,extraOpts={}){
   const baseOpt = {
-    chart:{type:'bar',height:260,background:'transparent',toolbar:{show:false},foreColor:'#737373',fontFamily:'Sora'},
+    chart:{type:'bar',height:260,background:'transparent',toolbar:{show:false},foreColor:'#737373',fontFamily:'Roboto'},
     series,colors,
     plotOptions:{bar:{borderRadius:6,borderRadiusApplication:'end',columnWidth:grouped?'70%':'55%'}},
     fill:{type:'gradient',gradient:{shade:'dark',type:'vertical',shadeIntensity:.5,opacityFrom:1,opacityTo:.65}},
     dataLabels:{enabled:false},
     grid:baseGrid,
     xaxis:{...baseAxis,categories},
-    yaxis:{labels:{style:{colors:'#737373',fontFamily:'IBM Plex Mono',fontSize:'11px'},formatter:v=>'R$ '+fmtK(v)}},
+    yaxis:{labels:{style:{colors:'#737373',fontFamily:'Space Grotesk',fontSize:'11px'},formatter:v=>'R$ '+fmtK(v)}},
     tooltip:{theme:'dark',y:{formatter:v=>fmtBRL2(v)}},
     legend:legendOptions(),
   };
@@ -2191,13 +2191,13 @@ function renderBar(id,series,categories,colors,grouped=false,extraOpts={}){
 }
 function renderBarStacked(id,series,categories,colors){
   upsert(id,{
-    chart:{type:'bar',height:300,background:'transparent',toolbar:{show:false},foreColor:'#737373',stacked:true,stackType:'normal',fontFamily:'Sora'},
+    chart:{type:'bar',height:300,background:'transparent',toolbar:{show:false},foreColor:'#737373',stacked:true,stackType:'normal',fontFamily:'Roboto'},
     series,colors,
     plotOptions:{bar:{borderRadius:3,columnWidth:'70%'}},
     dataLabels:{enabled:false},
     grid:baseGrid,
     xaxis:{...baseAxis,categories},
-    yaxis:{labels:{style:{colors:'#737373',fontFamily:'IBM Plex Mono',fontSize:'11px'},formatter:v=>'R$ '+fmtK(Math.abs(v))}},
+    yaxis:{labels:{style:{colors:'#737373',fontFamily:'Space Grotesk',fontSize:'11px'},formatter:v=>'R$ '+fmtK(Math.abs(v))}},
     tooltip:{theme:'dark',y:{formatter:v=>fmtBRL2(Math.abs(v))}},
     legend:legendOptions(),
   });
@@ -2206,14 +2206,14 @@ function renderBarH(id,series,categories,colors,opts={}){
   const height = opts.height || Math.max(360, categories.length * 40);
   const barHeight = opts.barHeight || '68%';
   const baseOpt = {
-    chart:{type:'bar',height,background:'transparent',toolbar:{show:false},foreColor:'#737373',fontFamily:'Sora'},
+    chart:{type:'bar',height,background:'transparent',toolbar:{show:false},foreColor:'#737373',fontFamily:'Roboto'},
     series,colors,
     stroke:{show:true,width:1,colors:['#0a0a0a']},
     plotOptions:{bar:{horizontal:true,borderRadius:6,borderRadiusApplication:'end',barHeight}},
     fill:{type:'gradient',gradient:{shade:'dark',type:'horizontal',shadeIntensity:.25,opacityFrom:.98,opacityTo:.78,stops:[0,100]}},
     dataLabels:{enabled:false},
     grid:baseGrid,
-    xaxis:{...baseAxis,categories,labels:{style:{colors:'#737373',fontFamily:'IBM Plex Mono',fontSize:'11px'},formatter:v=>'R$ '+fmtK(v)}},
+    xaxis:{...baseAxis,categories,labels:{style:{colors:'#737373',fontFamily:'Space Grotesk',fontSize:'11px'},formatter:v=>'R$ '+fmtK(v)}},
     yaxis:{labels:{style:{colors:'#fafafa',fontSize:'12px'}}},
     tooltip:{theme:'dark',y:{formatter:v=>fmtBRL2(v)}},
     legend:legendOptions({markers:{width:10,height:10,radius:99},itemMargin:{horizontal:7,vertical:6}}),
@@ -2231,14 +2231,14 @@ function renderBarH(id,series,categories,colors,opts={}){
 }
 function renderLine(id,series,categories,colors){
   const opt = {
-    chart:{type:'line',height:240,background:'transparent',toolbar:{show:false},foreColor:'#737373',fontFamily:'Sora'},
+    chart:{type:'line',height:240,background:'transparent',toolbar:{show:false},foreColor:'#737373',fontFamily:'Roboto'},
     series,colors,
     stroke:{curve:'smooth',width:3,lineCap:'round'},
     markers:{size:5,strokeWidth:0,colors,hover:{size:8}},
     dataLabels:{enabled:false},
     grid:baseGrid,
     xaxis:{...baseAxis,categories},
-    yaxis:{labels:{style:{colors:'#737373',fontFamily:'IBM Plex Mono',fontSize:'11px'},formatter:v=>v.toFixed(0)+'%'}},
+    yaxis:{labels:{style:{colors:'#737373',fontFamily:'Space Grotesk',fontSize:'11px'},formatter:v=>v.toFixed(0)+'%'}},
     tooltip:{theme:'dark',y:{formatter:v=>v == null ? 'Sem dados' : `${Number(v).toFixed(2)}%`}},
     legend:legendOptions(),
   };
@@ -2270,7 +2270,7 @@ function renderLine(id,series,categories,colors){
         label:{
           text:lucroMetaLabel(),
           borderColor:'#d6b77a',
-          style:{background:'#111',color:'#d6b77a',fontSize:'11px',fontFamily:'Sora',fontWeight:800}
+          style:{background:'#111',color:'#d6b77a',fontSize:'11px',fontFamily:'Futura',fontWeight:800}
         }
       }],
       points:lucroPointAnnotations(items)
@@ -2446,7 +2446,7 @@ function renderDonutDre(id, series, labels, grupos, totalOverride = null, period
         <span style="color:#e5e5e5;max-width:210px;white-space:normal;line-height:1.25;">
           ${escHtml(item.desc)}
         </span>
-        <span style="font-family:IBM Plex Mono,monospace;color:${moneyColor(item.valorOriginal)};white-space:nowrap;text-align:right;">
+        <span style="font-family:Space Grotesk,Roboto,sans-serif;color:${moneyColor(item.valorOriginal)};white-space:nowrap;text-align:right;">
           ${fmtBRL2(item.valorOriginal)}${pct}
         </span>
       </div>
@@ -2468,7 +2468,7 @@ function renderDonutDre(id, series, labels, grupos, totalOverride = null, period
       linhas.push(`
         <div style="display:grid;grid-template-columns:1fr auto;gap:14px;margin:5px 0;align-items:start;">
           <span style="color:#e5e5e5;">${escHtml(grupo.label)}</span>
-          <span style="font-family:IBM Plex Mono,monospace;color:${moneyColor(grupo.value)};white-space:nowrap;">
+          <span style="font-family:Space Grotesk,Roboto,sans-serif;color:${moneyColor(grupo.value)};white-space:nowrap;">
             ${fmtBRL2(grupo.value)}
           </span>
         </div>
@@ -2530,7 +2530,7 @@ function renderDonutDre(id, series, labels, grupos, totalOverride = null, period
       height:380,
       background:'transparent',
       foreColor:'#737373',
-      fontFamily:'Sora',
+      fontFamily:'Roboto',
       events:{
         dataPointMouseEnter:function(event, chartContext, config){
           // Em donut/pie, a fatia correta normalmente vem em dataPointIndex.
@@ -2577,13 +2577,13 @@ function renderDonutDre(id, series, labels, grupos, totalOverride = null, period
             name:{
               color:'#8a8a8a',
               fontSize:'14px',
-              fontFamily:'Sora',
+              fontFamily:'Futura',
               fontWeight:650
             },
             value:{
               color:'#fafafa',
               fontSize:'22px',
-              fontFamily:'IBM Plex Mono',
+              fontFamily:'Space Grotesk',
               fontWeight:700,
               formatter:v=>fmtBRL(v)
             },
@@ -2591,7 +2591,7 @@ function renderDonutDre(id, series, labels, grupos, totalOverride = null, period
               show:true,
               label:'Total Receitas',
               fontSize:'14px',
-              fontFamily:'Sora',
+              fontFamily:'Futura',
               fontWeight:650,
               color:'#8a8a8a',
               formatter:w=>{
@@ -2922,7 +2922,7 @@ function closeAnnualSummaryModal(){
 
 function renderPolar(id,series,labels){
   upsert(id,{
-    chart:{type:'polarArea',height:320,background:'transparent',foreColor:'#737373',fontFamily:'Sora'},
+    chart:{type:'polarArea',height:320,background:'transparent',foreColor:'#737373',fontFamily:'Roboto'},
     series,labels,colors:PALETTE,
     stroke:{colors:['#000000'],width:2},
     fill:{opacity:.85},
@@ -2934,9 +2934,9 @@ function renderPolar(id,series,labels){
 }
 function renderRadialSingle(id,value,label){
   upsert(id,{
-    chart:{type:'radialBar',height:260,background:'transparent',foreColor:'#737373',fontFamily:'Sora'},
+    chart:{type:'radialBar',height:260,background:'transparent',foreColor:'#737373',fontFamily:'Roboto'},
     series:[value],labels:[label],colors:[CHART_THEME.accent],
-    plotOptions:{radialBar:{hollow:{size:'62%',background:'transparent'},track:{background:'#1f1f1f',strokeWidth:'100%'},dataLabels:{name:{color:'#737373',fontSize:'.8rem'},value:{color:'#fafafa',fontFamily:'IBM Plex Mono',fontSize:'1.7rem',formatter:v=>v.toFixed(1)+'%'}}}},
+    plotOptions:{radialBar:{hollow:{size:'62%',background:'transparent'},track:{background:'#1f1f1f',strokeWidth:'100%'},dataLabels:{name:{color:'#737373',fontSize:'.8rem'},value:{color:'#fafafa',fontFamily:'Space Grotesk',fontSize:'1.7rem',formatter:v=>v.toFixed(1)+'%'}}}},
     fill:{type:'gradient',gradient:{shade:'dark',type:'horizontal',gradientToColors:[CHART_THEME.primary],stops:[0,100]}},
   });
 }
@@ -2951,7 +2951,7 @@ function renderSpark(id,data,color){
 }
 function renderHeatmap(id,series){
   upsert(id,{
-    chart:{type:'heatmap',height:240,background:'transparent',toolbar:{show:false},foreColor:'#737373',fontFamily:'Sora'},
+    chart:{type:'heatmap',height:240,background:'transparent',toolbar:{show:false},foreColor:'#737373',fontFamily:'Roboto'},
     series,
     dataLabels:{enabled:false},
     plotOptions:{heatmap:{radius:4,enableShades:true,shadeIntensity:.5,colorScale:{ranges:[
@@ -2970,17 +2970,17 @@ function renderHeatmap(id,series){
 }
 function renderTreemap(id,series){
   upsert(id,{
-    chart:{type:'treemap',height:360,background:'transparent',toolbar:{show:false},foreColor:'#ece9ff',fontFamily:'Sora'},
+    chart:{type:'treemap',height:360,background:'transparent',toolbar:{show:false},foreColor:'#ece9ff',fontFamily:'Roboto'},
     series,
     legend:{show:false},
-    dataLabels:{enabled:true,style:{fontSize:'12px',fontFamily:'Sora',fontWeight:600},formatter:(t,o)=>[t, fmtBRL(o.value)]},
+    dataLabels:{enabled:true,style:{fontSize:'12px',fontFamily:'Roboto',fontWeight:600},formatter:(t,o)=>[t, fmtBRL(o.value)]},
     plotOptions:{treemap:{distributed:true,enableShades:false,colorScale:{ranges:PALETTE.map((c,i)=>({from:i*1,to:(i+1)*1e9,color:c}))}}},
     tooltip:{theme:'dark',y:{formatter:v=>fmtBRL2(v)}},
   });
 }
 function renderRadar(id,series,categories){
   upsert(id,{
-    chart:{type:'radar',height:380,background:'transparent',toolbar:{show:false},foreColor:'#ece9ff',fontFamily:'Sora'},
+    chart:{type:'radar',height:380,background:'transparent',toolbar:{show:false},foreColor:'#ece9ff',fontFamily:'Roboto'},
     series,colors:['#ffffff'],
     xaxis:{categories,labels:{style:{colors:Array(categories.length).fill('#ece9ff'),fontSize:'12px'}}},
     yaxis:{show:false,max:100},
@@ -2999,10 +2999,9 @@ const OPENAI_MODEL_DEFAULT = 'gpt-5.4-mini';
 const DASHBOARD_AI_SYSTEM_PROMPT = `
 Objetivo
 Você é um especialista em planejamento financeiro e controle de metas empresariais.
-Sua função é atuar como controlador financeiro anual da agência Virtus, usando os dados do dashboard Virtus Ads Finance e os fechamentos mensais enviados pelo usuário.
-Ignore Bossa Nova completamente. Não crie análises, metas ou tabelas para Bossa Nova.
+Sua função é atuar como controlador financeiro anual da agência Bossa Nova, usando os dados do dashboard Bossa Nova Finance e os fechamentos mensais enviados pelo usuário.
 
-Metas anuais da Virtus
+Metas anuais da Bossa Nova
 - Faturamento anual: R$ 600.000
 - Lucro anual: R$ 165.000
 
@@ -3010,11 +3009,11 @@ Como você deve funcionar
 Sempre que o usuário enviar o fechamento de um mês, aceite o formato:
 
 <mes> {{MÊS}} </mes>
-<virtus_faturamento> {{VALOR}} </virtus_faturamento>
-<virtus_lucro> {{VALOR}} </virtus_lucro>
+<faturamento> {{VALOR}} </faturamento>
+<lucro> {{VALOR}} </lucro>
 
 Você deve:
-1. Atualizar o acumulado do ano da Virtus.
+1. Atualizar o acumulado do ano da Bossa Nova.
 2. Calcular:
    - Percentual da meta anual atingida.
    - Percentual ideal acumulado até o mês atual, usando Meta ÷ 12 × número de meses decorridos.
@@ -3158,7 +3157,7 @@ function buildDashboardAIContext(){
   })).filter(r => String(r.mes || '').trim()).slice(0,20);
 
   return {
-    dashboard:'Virtus Ads Finance',
+    dashboard:'Bossa Nova Finance',
     geradoEm:new Date().toLocaleString('pt-BR'),
     filtrosAtuais:{
       mesesSelecionados:selectedLabels,

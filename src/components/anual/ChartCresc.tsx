@@ -14,7 +14,7 @@ export function ChartCresc({ data }: { data: AnualChartsData }) {
     <div className="card p-6">
       <div className="section-eyebrow mb-1">Growth</div>
       <h2 className="font-semibold tracking-[-0.03em] mb-4">Crescimento %</h2>
-      <ApexChartBox id="chart-cresc" options={options} />
+      <ApexChartBox id="chart-cresc" options={options} revealDirection="horizontal" />
     </div>
   );
 }

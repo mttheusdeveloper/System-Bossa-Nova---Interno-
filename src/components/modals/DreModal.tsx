@@ -7,6 +7,10 @@ import { ModalShell } from './ModalShell';
 import { useDashboard } from '../../state/DashboardContext';
 import { useModals } from '../../state/ModalsContext';
 import { useDreContext } from '../../hooks/useDreContext';
+import { OriginButton } from '../ui/origin-button';
+import { SearchInput } from '../shared/SearchInput';
+
+const CLOSE_BTN_CLASS = 'h-auto py-1.5 px-3 rounded-md text-[.74rem] font-semibold gap-1';
 
 // Porta de openDreModal()/renderDreFullModal() (script.js:2775-2893).
 export function DreModal() {
@@ -42,28 +46,12 @@ export function DreModal() {
             <div className="section-eyebrow mb-1">{eyebrow}</div>
             <h2 className="font-semibold tracking-[-0.03em] text-lg">{title}</h2>
           </div>
-          <button className="chip-btn" onClick={closeDre}>
+          <OriginButton className={CLOSE_BTN_CLASS} onClick={closeDre}>
             ✕ Fechar
-          </button>
+          </OriginButton>
         </div>
         <div className="modal-toolbar px-6 py-3 border-b border-[var(--border)] flex flex-wrap items-center gap-3">
-          <div className="modal-search-shell">
-            <span className="modal-search-icon">⌕</span>
-            <div className="modal-search-copy">
-              <span className="modal-search-label">Busca na DRE</span>
-              <input
-                className="modal-search-input"
-                placeholder="Busque por grupo, descrição, valor ou porcentagem"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            {search && (
-              <button type="button" className="modal-search-clear" onClick={() => setSearch('')}>
-                Limpar
-              </button>
-            )}
-          </div>
+          <SearchInput label="Busque por grupo, descrição, valor ou porcentagem" value={search} onChange={setSearch} />
           <span className="modal-filter-pill">{terms.length ? `Filtrando: ${itemFiltered}/${itemTotal}` : 'Pesquise em todas as colunas da DRE'}</span>
         </div>
         <div className="overflow-y-auto flex-1 annual-summary-scroll">

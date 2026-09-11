@@ -35,7 +35,7 @@ export function ChartCatComp({ data }: { data: CategoryComparisonData }) {
     <div className="card p-6">
       <div className="section-eyebrow mb-1">Meses</div>
       <h2 className="font-semibold tracking-[-0.03em] mb-4">Categorias</h2>
-      <ApexChartBox id="chart-cat-comp" options={options} />
+      <ApexChartBox id="chart-cat-comp" options={options} revealDirection="horizontal" />
     </div>
   );
 }

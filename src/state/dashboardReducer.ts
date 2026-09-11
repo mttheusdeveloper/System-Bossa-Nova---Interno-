@@ -2,7 +2,7 @@ import { ACTIVE_MONTHS, CURRENT_MONTH_LIMIT_INDEX, MONTHS } from '../lib/constan
 import { clampAnualRange, defaultMonthKey } from '../lib/months';
 import type { AnualFilterState, MensalFilterState, RawRow } from '../types';
 
-export type Tab = 'mensal' | 'anual';
+export type Tab = 'mensal' | 'anual' | 'contratos' | 'captacao' | 'drive' | 'sheets' | 'designers' | 'edicoes' | 'feedback-captacao' | 'vec-planilha' | 'vec-custos';
 export type ConnectionStatus = 'connecting' | 'connected' | 'error';
 
 export interface DashboardState {

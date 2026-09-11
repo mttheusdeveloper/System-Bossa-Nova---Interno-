@@ -14,7 +14,7 @@ export function ChartLucro({ data }: { data: AnualChartsData }) {
     <div className="card p-6">
       <div className="section-eyebrow mb-1">Margin</div>
       <h2 className="font-semibold tracking-[-0.03em] mb-4">Lucratividade %</h2>
-      <ApexChartBox id="chart-lucro" options={options} />
+      <ApexChartBox id="chart-lucro" options={options} revealDirection="horizontal" />
     </div>
   );
 }

@@ -11,7 +11,7 @@ export function ChartEbitda({ data }: { data: AnualChartsData }) {
     <div className="card p-6">
       <div className="section-eyebrow mb-1">Operacional</div>
       <h2 className="font-semibold tracking-[-0.03em] mb-4">EBITDA</h2>
-      <ApexChartBox id="chart-ebitda" options={options} />
+      <ApexChartBox id="chart-ebitda" options={options} revealDirection="horizontal" />
     </div>
   );
 }

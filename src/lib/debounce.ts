@@ -5,7 +5,3 @@ export function debounce<Args extends unknown[]>(fn: (...args: Args) => void, de
     t = setTimeout(() => fn(...args), delay);
   };
 }
-
-export function prefersReducedMotion(): boolean {
-  return typeof window !== 'undefined' && !!window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}

@@ -56,24 +56,24 @@ export const ROI_FIELD_KEYS = [
 // Não usa lucratividade/crescimento aqui porque fórmulas de meses vazios podem virar 0% ou -100% e parecerem bugs no gráfico.
 export const ANUAL_VALUE_KEYS = [A.fb, A.fl, A.caixa, A.eb, A.custos, A.inv, A.roi, A.endiv];
 
-// Paleta do tema "energy-dashboard": fundo quase preto, acento laranja.
+// Paleta do tema "energy-dashboard": fundo quase preto, acento azul Bossa Nova.
 export const CHART_THEME = {
-  primary: '#FF8A3D',
+  primary: '#82C5D9',
   secondary: '#9A9A9A',
   accent: '#A78BFA',
   accent2: '#60A5FA',
   positive: '#34D399',
   negative: '#F87171',
   warning: '#FBBF24',
-  cost: '#FF6B00',
+  cost: '#5CABC4',
   muted: '#7A7A7A',
 } as const;
 
 export const LUCRO_META = 27.5;
 
 export const MONTH_CHART_COLORS: Record<string, string> = {
-  janeiro: '#FF6B00',
-  fevereiro: '#FF8A3D',
+  janeiro: '#5CABC4',
+  fevereiro: '#82C5D9',
   marco: '#FBBF24',
   abril: '#34D399',
   maio: '#22B8A8',

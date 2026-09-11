@@ -5,7 +5,11 @@ import { fmtBRL2 } from '../../lib/format';
 import { modalRowHaystack } from '../../lib/modalSearch';
 import { useModals } from '../../state/ModalsContext';
 import { ModalShell } from './ModalShell';
+import { OriginButton } from '../ui/origin-button';
+import { SearchInput } from '../shared/SearchInput';
 import type { TxModalItem } from '../../types';
+
+const CLOSE_BTN_CLASS = 'h-auto py-1.5 px-3 rounded-md text-[.74rem] font-semibold gap-1';
 
 // Porta do modal genérico de transações (script.js:1298-1483) — reaproveitado
 // por 5 "abridores" diferentes (ver hooks/useTxModalActions.ts).
@@ -30,29 +34,13 @@ export function TxModal() {
             <span className="text-xs text-[var(--muted)]">
               {terms.length ? `${filtered.length} de ${tx.items.length} registros` : `${tx.items.length} registros`}
             </span>
-            <button className="chip-btn" onClick={closeTx}>
+            <OriginButton className={CLOSE_BTN_CLASS} onClick={closeTx}>
               ✕ Fechar
-            </button>
+            </OriginButton>
           </div>
         </div>
         <div className="modal-toolbar px-6 py-3 border-b border-[var(--border)] flex flex-wrap items-center gap-3">
-          <div className="modal-search-shell">
-            <span className="modal-search-icon">⌕</span>
-            <div className="modal-search-copy">
-              <span className="modal-search-label">Busca rápida</span>
-              <input
-                className="modal-search-input"
-                placeholder="Busque por data, mês, conta, categoria, descrição, entradas ou saídas"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            {search && (
-              <button type="button" className="modal-search-clear" onClick={() => setSearch('')}>
-                Limpar
-              </button>
-            )}
-          </div>
+          <SearchInput label="Busque por data, mês, conta, categoria, descrição, entradas ou saídas" value={search} onChange={setSearch} />
           <span className="modal-filter-pill">
             {terms.length ? `Filtrando: ${filtered.length}/${tx.items.length}` : 'Pesquise em todas as colunas do pop-up'}
           </span>

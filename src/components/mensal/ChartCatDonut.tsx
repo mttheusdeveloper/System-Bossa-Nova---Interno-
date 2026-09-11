@@ -37,7 +37,7 @@ export function ChartCatDonut({ dreContext }: { dreContext: DreContext }) {
   const totalReceitas = dreContext.totalReceitas || chartData.reduce((acc, d) => acc + d.value, 0);
 
   return (
-    <Card className="xl:col-span-2 flex flex-col">
+    <Card className="mensal-chart-card xl:col-span-2 flex flex-col">
       <CardHeader className="flex-row items-start justify-between gap-3 space-y-0 pb-0">
         <div>
           <CardTitle className="text-lg">Visão Geral</CardTitle>

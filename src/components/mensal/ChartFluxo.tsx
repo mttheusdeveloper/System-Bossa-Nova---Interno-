@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { buildBarOptions } from '../../lib/chartBuilders';
-import { CHART_THEME } from '../../lib/constants';
 import { ApexChartBox } from '../charts/ApexChartBox';
 import { useTxModalActions } from '../../hooks/useTxModalActions';
 import type { CaixaChartItem } from '../../hooks/useMensalKpis';
@@ -13,7 +12,7 @@ export function ChartFluxo({ items }: { items: CaixaChartItem[] }) {
       buildBarOptions(
         [{ name: 'Custo Operacional', data: items.map((m) => m.custoOperacional) }],
         items.map((m) => m.short),
-        [CHART_THEME.primary],
+        ['#8A9298'],
         false,
         {
           yaxis: { min: 0 },
