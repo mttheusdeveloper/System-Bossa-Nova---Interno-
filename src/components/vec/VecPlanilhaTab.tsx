@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronDown, Film, Hash, PenTool, Search, Trash2, Wallet, X, type LucideIcon } from 'lucide-react';
+import { ChevronDown, Film, FileDown, Hash, PenTool, Printer, Search, Trash2, Wallet, X, type LucideIcon } from 'lucide-react';
 import { fmtBRL2 } from '../../lib/format';
 import { parseMoneyInput } from '../../lib/vecFormat';
 import { ordenarPessoas, rateLabel, VALORES_COMPETENCIA_INICIAL } from '../../lib/vecRates';
@@ -42,6 +42,17 @@ const DEFAULT_HIDDEN: TableColumnKey[] = ['valor_mensalidade', 'margem', 'lucro_
 
 function pessoaColumnKey(pessoa: string): `pessoa:${string}` {
   return `pessoa:${pessoa}`;
+}
+
+// Verde/vermelho comparado ao custo máximo cadastrado (não só "deu negativo")
+// — sem custo máximo definido, cai no critério antigo (negativo = vermelho).
+// Cor aplicada via style inline porque ".vec-values-table tbody td" (mais
+// específico que uma classe utilitária do Tailwind) estava sempre vencendo e
+// deixando o texto branco/cinza.
+function totalTone(linha: VecLinha): string {
+  const custoMaximo = linha.rosterEntry?.custo_maximo;
+  if (custoMaximo != null) return linha.total > custoMaximo ? '#FB7185' : '#34D399';
+  return linha.total < 0 ? '#FB7185' : '#34D399';
 }
 
 function monthLabel(competencia: string): string {
@@ -269,6 +280,36 @@ export function VecPlanilhaTab() {
     setDetailFor({ cliente, pessoa, itens: [...itens].sort((a, b) => b.data.localeCompare(a.data)) });
   }
 
+  function downloadCsv() {
+    const header = [
+      'Cliente',
+      ...pessoasVisiveis,
+      ...(hiddenColumns.has('total') ? [] : ['Total']),
+      ...financeColumnsVisiveis.map((col) => col.label),
+    ];
+    const rows = visibleLinhas.map((linha) => [
+      linha.cliente,
+      ...pessoasVisiveis.map((pessoa) => (linha.celulas[pessoa] ? fmtBRL2(linha.celulas[pessoa].valorFinal) : '')),
+      ...(hiddenColumns.has('total') ? [] : [fmtBRL2(linha.total)]),
+      ...financeColumnsVisiveis.map((col) => {
+        const raw = linha.rosterEntry?.[col.key];
+        return raw != null ? fmtBRL2(raw) : '';
+      }),
+    ]);
+
+    const csv = [header, ...rows]
+      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(';'))
+      .join('\r\n');
+
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `planilha-vec-${mes}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <section className="vec-page">
       <div className="vec-page-heading">
@@ -333,13 +374,21 @@ export function VecPlanilhaTab() {
             <SummaryCard icon={Hash} label="Itens no período" value={String(matriz.itensNoPeriodo)} tone="amber" />
           </div>
 
-          <div className="card vec-sheet-card">
+          <div className="card vec-sheet-card vec-print-area">
             <div className="vec-sheet-toolbar flex flex-wrap items-center justify-between gap-3">
               <h3 className="font-semibold tracking-[-0.025em]">
                 Planilha de valores <span className="text-[var(--muted-2)] font-normal">· {visibleLinhas.length} clientes</span>
               </h3>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 vec-toolbar-actions">
                 <SearchInput label="Filtrar cliente..." value={search} onChange={setSearch} className="vec-sheet-search w-56" />
+                <OriginButton className="h-9 px-4 rounded-lg text-[.78rem] [--ic-foreground:#fff]" onClick={downloadCsv}>
+                  <FileDown className="w-3.5 h-3.5" />
+                  Baixar planilha
+                </OriginButton>
+                <OriginButton className="h-9 px-4 rounded-lg text-[.78rem] [--ic-foreground:#fff]" onClick={() => window.print()}>
+                  <Printer className="w-3.5 h-3.5" />
+                  Baixar PDF
+                </OriginButton>
                 <OriginButton className="vec-new-client h-9 px-4 rounded-lg text-[.78rem] [--ic-foreground:#fff]" onClick={() => setNovoClienteOpen(true)}>
                   Novo cliente
                 </OriginButton>
@@ -442,7 +491,6 @@ export function VecPlanilhaTab() {
                               ) : celula ? (
                                 <span className={`vec-cell-value ${celula.ajustado ? 'text-[#FBBF24]' : 'text-[var(--text)]'}`}>
                                   <span className="whitespace-nowrap">{fmtBRL2(celula.valorFinal)}</span>
-                                  <span className="text-[10px] text-[var(--muted)]">{celula.itens.reduce((s, i) => s + i.quantidade, 0)}</span>
                                   <button
                                     type="button"
                                     aria-label={`Ver tarefas de ${pessoa} em ${linha.cliente}`}
@@ -463,8 +511,13 @@ export function VecPlanilhaTab() {
                         })}
                         {!hiddenColumns.has('total') && (
                           <td
-                            className={`vec-total-value whitespace-nowrap font-semibold ${linha.total < 0 ? 'text-[#FB7185]' : 'text-[#34D399]'}`}
-                            title={fmtBRL2(linha.total)}
+                            className="vec-total-value whitespace-nowrap font-semibold"
+                            style={{ color: totalTone(linha) }}
+                            title={
+                              linha.rosterEntry?.custo_maximo != null
+                                ? `Custo máximo: ${fmtBRL2(linha.rosterEntry.custo_maximo)}`
+                                : fmtBRL2(linha.total)
+                            }
                           >
                             {fmtBRL2(linha.total)}
                           </td>

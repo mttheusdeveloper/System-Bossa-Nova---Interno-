@@ -1,7 +1,7 @@
 import { captacaoDateParts, durationMinutes, formatDuration, normalized } from './captacaoFormat';
 import { fetchAtasCaptacao } from './captacoes';
 import { fetchRelatorioDesign, parseDesignName } from './relatorioDesign';
-import { fetchRelatorioEdicao, parseEdicaoName } from './relatorioEdicao';
+import { extractEdicaoQuantidade, fetchRelatorioEdicao, parseEdicaoName } from './relatorioEdicao';
 import { canonicalClientDisplayName, clientNameKey, fetchClientesMensalidade, type ClienteMensalidade } from './vecClientes';
 import { ajusteKey, fetchAjustes, readLocalFallback } from './vecAjustes';
 import { CAPTACAO_PESSOA, VALORES_COMPETENCIA_INICIAL, valorCaptacao, valorPorItem } from './vecRates';
@@ -28,17 +28,6 @@ export interface VecLoadResult {
   ajustesDisponivel: boolean;
 }
 
-const EDICAO_ITEM_RE = /(\d+)\s*(?:videos?|edica(?:o|oes)|reels?|stories?|story|cortes?|shorts?|clipes?|pecas?|depoimentos?|entrevistas?)/g;
-const DESIGN_ITEM_RE = /(\d+)\s*(?:carrosse(?:l|is)|estatic(?:o|a)s?|stories?|story|artes?|capas?|pecas?)/g;
-
-function extractCount(text: string, funcao: 'edicao' | 'design'): number {
-  const source = normalized(text);
-  const pattern = funcao === 'edicao' ? EDICAO_ITEM_RE : DESIGN_ITEM_RE;
-  let total = 0;
-  for (const match of source.matchAll(pattern)) total += Number(match[1]) || 0;
-  return total || 1;
-}
-
 function competenciaOf(dateStr: string | null): string | null {
   const parts = dateStr ? captacaoDateParts(dateStr) : null;
   return parts ? `${parts.year}-${String(parts.month).padStart(2, '0')}` : null;
@@ -62,9 +51,8 @@ export async function loadValores(): Promise<VecLoadResult> {
   designRows.forEach((row) => {
     const competencia = competenciaOf(row.datainicio);
     if (!competencia || competencia < VALORES_COMPETENCIA_INICIAL) return;
-    const { cliente } = parseDesignName(row.name);
+    const { cliente, quantidade } = parseDesignName(row.name);
     const clienteCanonico = canonicalClientDisplayName(cliente, roster);
-    const quantidade = extractCount(row.name, 'design');
     items.push({
       id: `design-${row.id}`,
       competencia,
@@ -85,7 +73,7 @@ export async function loadValores(): Promise<VecLoadResult> {
     if (!competencia || competencia < VALORES_COMPETENCIA_INICIAL) return;
     const cliente = parseEdicaoName(row.name);
     const clienteCanonico = canonicalClientDisplayName(cliente, roster);
-    const quantidade = extractCount(row.name ?? '', 'edicao');
+    const quantidade = extractEdicaoQuantidade(row.name);
     items.push({
       id: `edicao-${row.id}`,
       competencia,

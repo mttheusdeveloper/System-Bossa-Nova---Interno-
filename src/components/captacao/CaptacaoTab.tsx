@@ -186,7 +186,17 @@ export function CaptacaoTab() {
             </div>
           </div>
 
-          <CaptacaoOverview rows={filteredRows} />
+          <CaptacaoOverview
+            rows={filteredRows}
+            onSelectMonth={(key) => {
+              setMonth(key);
+              setAtasOpen(true);
+            }}
+            onSelectVideomaker={(name) => {
+              setVideomaker(name);
+              setAtasOpen(true);
+            }}
+          />
 
           <OriginButton
             ref={atasButtonRef}

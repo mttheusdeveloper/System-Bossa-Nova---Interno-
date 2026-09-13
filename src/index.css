@@ -2032,7 +2032,7 @@ table tbody tr:hover{background:var(--surface-2)}
   text-rendering:optimizeLegibility;
 }
 .vec-page,
-.vec-cost-page{font-size:13px;line-height:1.45;}
+.vec-cost-page{font-size:14px;line-height:1.45;}
 .vec-page button,
 .vec-page input,
 .vec-cost-page button,
@@ -2041,102 +2041,101 @@ table tbody tr:hover{background:var(--surface-2)}
 /* Títulos e textos de abertura */
 .vec-page-heading h2,
 .vec-cost-heading h2{
-  font-size:22px !important;
+  font-size:23px !important;
   font-weight:700 !important;
   line-height:1.18;
   letter-spacing:-.035em !important;
 }
 .vec-page-heading p,
-.vec-cost-heading p{font-size:12.5px !important;line-height:1.45;}
-.vec-cost-eyebrow{font-size:9px !important;font-weight:700;letter-spacing:.1em;}
+.vec-cost-heading p{font-size:13.5px !important;line-height:1.45;}
+.vec-cost-eyebrow{font-size:10.5px !important;font-weight:700;letter-spacing:.1em;}
 
 /* Filtros */
 .vec-filter-panel .kpi-label,
 .vec-cost-field > span{
-  font-size:9.5px !important;
+  font-size:11px !important;
   font-weight:650 !important;
   letter-spacing:.07em !important;
 }
 .vec-filter-panel .month-select > button,
 .vec-filter-panel .vec-status-button,
 .vec-cost-select-trigger{
-  height:36px !important;
-  font-size:11.5px !important;
+  height:38px !important;
+  font-size:13px !important;
   font-weight:550 !important;
 }
 .vec-filter-panel .month-select-menu button,
-.vec-cost-select-option{min-height:34px;font-size:11px !important;font-weight:500;}
+.vec-cost-select-option{min-height:36px;font-size:12.5px !important;font-weight:500;}
 .vec-cost-month-control button,
-.vec-cost-month-control > .vec-cost-select .vec-cost-select-trigger{height:36px !important;}
+.vec-cost-month-control > .vec-cost-select .vec-cost-select-trigger{height:38px !important;}
 .vec-clear-filters,
-.vec-cost-clear{height:36px !important;font-size:11px !important;}
-.vec-cost-period-shortcuts button{height:28px;font-size:9.5px !important;font-weight:600;}
+.vec-cost-clear{height:38px !important;font-size:12.5px !important;}
+.vec-cost-period-shortcuts button{height:30px;font-size:11px !important;font-weight:600;}
 .vec-task-count,
-.vec-cost-period-summary{font-size:10px !important;}
+.vec-cost-period-summary{font-size:11.5px !important;}
 
 /* Resumos e indicadores */
-.vec-summary-label{font-size:11px !important;font-weight:500;}
-.vec-summary-value{font-size:24px !important;font-weight:700;letter-spacing:-.035em !important;}
-.vec-cost-kpi-top small{font-size:10.5px !important;font-weight:550;}
-.vec-cost-kpi-value-row > strong{font-size:24px !important;font-weight:700;}
-.vec-cost-kpi > p{font-size:9.5px !important;line-height:1.35;}
-.vec-cost-status-strip button strong{font-size:12px !important;}
-.vec-cost-status-strip button .vec-cost-status-label{font-size:9.5px !important;}
+.vec-summary-label{font-size:12px !important;font-weight:500;}
+.vec-summary-value{font-size:25px !important;font-weight:700;letter-spacing:-.035em !important;}
+.vec-cost-kpi-top small{font-size:12px !important;font-weight:550;}
+.vec-cost-kpi-value-row > strong{font-size:25px !important;font-weight:700;}
+.vec-cost-kpi > p{font-size:11px !important;line-height:1.35;}
+.vec-cost-status-strip button strong{font-size:13px !important;}
+.vec-cost-status-strip button .vec-cost-status-label{font-size:11px !important;}
 
 /* Cabeçalhos e ações das planilhas */
 .vec-sheet-toolbar h3,
-.vec-cost-panel-heading h3{font-size:13px !important;font-weight:650;letter-spacing:-.02em;}
-.vec-sheet-toolbar h3 span{font-size:10px !important;}
+.vec-cost-panel-heading h3{font-size:14.5px !important;font-weight:650;letter-spacing:-.02em;}
+.vec-sheet-toolbar h3 span{font-size:11.5px !important;}
 .vec-sheet-search .search-input,
 .vec-sheet-search .search-float-label,
-.vec-cost-search input{font-size:11px !important;}
+.vec-cost-search input{font-size:12.5px !important;}
 .vec-new-client,
 .vec-columns-button,
-.vec-cost-view-switch button{font-size:10.5px !important;}
-.vec-cost-panel-heading > div > span{font-size:8.5px !important;letter-spacing:.09em;}
-.vec-cost-panel-heading > em{font-size:9px;}
+.vec-cost-view-switch button{font-size:12px !important;}
+.vec-cost-panel-heading > div > span{font-size:10px !important;letter-spacing:.09em;}
+.vec-cost-panel-heading > em{font-size:10.5px;}
 
 /* Tabela VEC: compacta, sem sacrificar leitura. */
-.vec-values-table th{font-size:8.5px !important;line-height:1.2;letter-spacing:.055em;}
-.vec-values-table th > div:last-child{font-size:8px !important;}
-.vec-values-table td{font-size:10px !important;line-height:1.2;}
-.vec-values-table .vec-client-name{font-size:10px !important;font-weight:550;}
-.vec-values-table .vec-cell-value > span:nth-child(2){font-size:8px !important;}
-.vec-values-table input{font-size:10px !important;}
+.vec-values-table th{font-size:10.5px !important;line-height:1.25;letter-spacing:.05em;}
+.vec-values-table th > div:last-child{font-size:9.5px !important;}
+.vec-values-table td{font-size:12px !important;line-height:1.3;}
+.vec-values-table .vec-client-name{font-size:12px !important;font-weight:550;}
+.vec-values-table input{font-size:12px !important;}
 
 /* Prioridades, rankings e tabela de custos. */
-.vec-cost-client-avatar{font-size:8px !important;}
-.vec-cost-attention-copy > strong{font-size:10px !important;}
-.vec-cost-attention-copy > small{font-size:9px !important;}
-.vec-cost-attention-result > strong{font-size:10px !important;}
-.vec-cost-status-badge{font-size:7.5px !important;letter-spacing:.035em;}
-.vec-cost-ranking-tabs button{font-size:8.5px !important;}
-.vec-cost-rank-position{font-size:8px !important;}
+.vec-cost-client-avatar{font-size:10px !important;}
+.vec-cost-attention-copy > strong{font-size:12px !important;}
+.vec-cost-attention-copy > small{font-size:10.5px !important;}
+.vec-cost-attention-result > strong{font-size:12px !important;}
+.vec-cost-status-badge{font-size:9.5px !important;letter-spacing:.035em;}
+.vec-cost-ranking-tabs button{font-size:10.5px !important;}
+.vec-cost-rank-position{font-size:10px !important;}
 .vec-cost-rank-name,
-.vec-cost-ranking-list strong{font-size:9.5px !important;}
-.vec-cost-table th{font-size:8.5px !important;letter-spacing:.055em;}
+.vec-cost-ranking-list strong{font-size:11.5px !important;}
+.vec-cost-table th{font-size:10.5px !important;letter-spacing:.05em;}
 .vec-cost-table td,
-.vec-cost-client-link{font-size:10px !important;}
-.vec-cost-usage > span{font-size:9px !important;}
+.vec-cost-client-link{font-size:12px !important;}
+.vec-cost-usage > span{font-size:10.5px !important;}
 
 /* Painel lateral do cliente. */
 .vec-cost-drawer > header > div > span:first-child,
-.vec-cost-drawer-heading > div > span{font-size:8.5px !important;}
-.vec-cost-drawer > header h2{font-size:19px !important;}
-.vec-cost-drawer-client-meta > small{font-size:9px !important;}
+.vec-cost-drawer-heading > div > span{font-size:10px !important;}
+.vec-cost-drawer > header h2{font-size:20px !important;}
+.vec-cost-drawer-client-meta > small{font-size:10.5px !important;}
 .vec-cost-detail-kpis small,
-.vec-cost-profit-grid small{font-size:8.5px !important;}
+.vec-cost-profit-grid small{font-size:10px !important;}
 .vec-cost-detail-kpis strong,
-.vec-cost-profit-grid strong{font-size:11px !important;}
-.vec-cost-drawer-heading h3{font-size:13px !important;}
-.vec-cost-drawer-heading > small{font-size:8.5px !important;}
+.vec-cost-profit-grid strong{font-size:13px !important;}
+.vec-cost-drawer-heading h3{font-size:14.5px !important;}
+.vec-cost-drawer-heading > small{font-size:10px !important;}
 .vec-cost-distribution-list strong,
-.vec-cost-distribution-list div span{font-size:9.5px !important;}
+.vec-cost-distribution-list div span{font-size:11.5px !important;}
 .vec-cost-launch-table > div > span,
 .vec-cost-launch-table > div > strong,
-.vec-cost-history > div span{font-size:8.5px !important;}
+.vec-cost-history > div span{font-size:10.5px !important;}
 .vec-cost-launch-table > div.head span,
-.vec-cost-history > div.head span{font-size:7.5px !important;}
+.vec-cost-history > div.head span{font-size:9.5px !important;}
 
 /* Botões compartilhados: interação estática, sem preenchimento radial. */
 .origin-button-static{
@@ -2849,4 +2848,16 @@ button{
 .apexcharts-legend-series.is-toggling{
   transform:scale(.99) translateY(0) !important;
   opacity:.88 !important;
+}
+
+/* Export em PDF da VEC Planilha (botão "Baixar PDF" -> window.print()):
+   some tudo da página exceto a tabela marcada com .vec-print-area. */
+@media print{
+  body *{visibility:hidden;}
+  .vec-print-area,.vec-print-area *{visibility:visible;}
+  .vec-print-area{position:absolute;left:0;top:0;width:100%;box-shadow:none;}
+  .vec-toolbar-actions{display:none;}
+  .vec-values-table{color:#000;background:#fff;}
+  .vec-values-table th,.vec-values-table td{color:#000;border-color:#ccc;}
+  .vec-values-table thead{background:#eee !important;}
 }

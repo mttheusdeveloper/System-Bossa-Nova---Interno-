@@ -31,12 +31,27 @@ export interface ParsedDesignName {
   cliente: string;
   descricao: string;
   categoria: DesignCategoria;
+  quantidade: number;
 }
 
-// A coluna "tipo" da tabela nunca vem preenchida na prática — o cliente e o
-// tipo de arte (carrossel/estático/story) vêm embutidos no texto de "name",
-// no formato "<Cliente> - <qtd> <tipo> (<responsável>)". Aqui a gente separa
-// isso pra poder filtrar/agrupar por cliente e classificar por tipo.
+const CARROSSEL_QTD_RE = /(\d+)\s*carross\w*/gi;
+const ESTATICO_QTD_RE = /(\d+)\s*est[áa]tic\w*/gi;
+// Sem palavra-chave fixa pra "Outros" — soma qualquer "<número> <palavra>"
+// solto (ex.: "1 capa Facebook e 1 capa LinkedIn" = 2). Exige espaço entre o
+// número e a palavra, o que já livra números de medida colados tipo "1080p".
+const GENERICO_QTD_RE = /(\d+)\s+[a-z]+/gi;
+
+function sumMatches(text: string, pattern: RegExp): number {
+  const matches = [...text.matchAll(pattern)];
+  return matches.reduce((sum, match) => sum + Number(match[1]), 0);
+}
+
+// A coluna "tipo" da tabela nunca vem preenchida na prática — o cliente, o
+// tipo de arte (carrossel/estático/outros) e a quantidade vêm embutidos no
+// texto de "name", no formato "<Cliente> - <qtd> <tipo> (<responsável>)".
+// Cada tarefa só entra em UMA categoria — a ordem de prioridade é
+// Carrossel > Estático > Outros (uma tarefa "2 carrosséis + 3 estáticos"
+// conta só como 2 carrosséis; é uma limitação conhecida, não bug).
 export function parseDesignName(name: string): ParsedDesignName {
   const dashMatch = /^(.*?)\s*-\s*(.*)$/.exec(name.trim());
   const cliente = (dashMatch ? dashMatch[1] : name).trim() || name.trim();
@@ -50,5 +65,10 @@ export function parseDesignName(name: string): ParsedDesignName {
   if (normalizedDescricao.includes('carross')) categoria = 'Carrossel';
   else if (normalizedDescricao.includes('estatic')) categoria = 'Estático';
 
-  return { cliente, descricao, categoria };
+  let quantidade: number;
+  if (categoria === 'Carrossel') quantidade = sumMatches(normalizedDescricao, CARROSSEL_QTD_RE) || 1;
+  else if (categoria === 'Estático') quantidade = sumMatches(normalizedDescricao, ESTATICO_QTD_RE) || 1;
+  else quantidade = sumMatches(normalizedDescricao, GENERICO_QTD_RE) || 1;
+
+  return { cliente, descricao, categoria, quantidade };
 }

@@ -61,9 +61,26 @@ function monthOptions(rows: AtaCaptacao[]): FilterOption[] {
   return [...months.values()].sort((a, b) => b.sortValue - a.sortValue).map(({ value, label }) => ({ value, label }));
 }
 
-function buildVideomakerOptions(items: { name: string; total: number; comProblema: number }[]): ApexOptions {
+function buildVideomakerOptions(
+  items: { name: string; total: number; comProblema: number }[],
+  onSelect: (name: string) => void,
+): ApexOptions {
   return {
-    chart: { type: 'bar', height: 280, background: 'transparent', toolbar: { show: false }, foreColor: '#9A9A9A', fontFamily: 'Roboto', stacked: true },
+    chart: {
+      type: 'bar',
+      height: 280,
+      background: 'transparent',
+      toolbar: { show: false },
+      foreColor: '#9A9A9A',
+      fontFamily: 'Roboto',
+      stacked: true,
+      events: {
+        dataPointSelection: (_event, _chartContext, config) => {
+          const item = config ? items[config.dataPointIndex] : undefined;
+          if (item) onSelect(item.name);
+        },
+      },
+    },
     series: [
       { name: 'Sem problemas', data: items.map((item) => item.total - item.comProblema) },
       { name: 'Com problemas', data: items.map((item) => item.comProblema) },
@@ -139,7 +156,12 @@ export function FeedbackCaptacaoTab() {
     return [...map.values()].sort((a, b) => b.total - a.total || a.name.localeCompare(b.name, 'pt-BR'));
   }, [filteredRows]);
 
-  const chartOptions = useMemo(() => buildVideomakerOptions(videomakerChart), [videomakerChart]);
+  function selectVideomakerFromChart(name: string) {
+    setVideomaker(name);
+    setDetailsOpen(true);
+  }
+
+  const chartOptions = useMemo(() => buildVideomakerOptions(videomakerChart, selectVideomakerFromChart), [videomakerChart]);
   const filtersActive = videomaker !== 'all' || empresa !== 'all' || month !== CURRENT_MONTH_VALUE;
 
   function clearFilters() {

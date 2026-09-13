@@ -27,12 +27,13 @@ const TIPO_OPTIONS: FilterOption[] = [
 interface EnrichedRow extends RelatorioDesignRow {
   cliente: string;
   categoria: DesignCategoria;
+  quantidade: number;
 }
 
 function enrich(rows: RelatorioDesignRow[]): EnrichedRow[] {
   return rows.map((row) => {
-    const { cliente, categoria } = parseDesignName(row.name);
-    return { ...row, cliente, categoria };
+    const { cliente, categoria, quantidade } = parseDesignName(row.name);
+    return { ...row, cliente, categoria, quantidade };
   });
 }
 
@@ -69,9 +70,22 @@ function monthOptions(rows: RelatorioDesignRow[]): FilterOption[] {
   return [...months.values()].sort((a, b) => b.sortValue - a.sortValue).map(({ value, label }) => ({ value, label }));
 }
 
-function buildClientOptions(items: { name: string; total: number }[]): ApexOptions {
+function buildClientOptions(items: { name: string; total: number }[], onSelect: (name: string) => void): ApexOptions {
   return {
-    chart: { type: 'bar', height: Math.max(280, items.length * 26), background: 'transparent', toolbar: { show: false }, foreColor: '#9A9A9A', fontFamily: 'Roboto' },
+    chart: {
+      type: 'bar',
+      height: Math.max(280, items.length * 26),
+      background: 'transparent',
+      toolbar: { show: false },
+      foreColor: '#9A9A9A',
+      fontFamily: 'Roboto',
+      events: {
+        dataPointSelection: (_event, _chartContext, config) => {
+          const item = config ? items[config.dataPointIndex] : undefined;
+          if (item) onSelect(item.name);
+        },
+      },
+    },
     series: [{ name: 'Artes', data: items.map((item) => item.total) }],
     colors: [ACCENT],
     stroke: { show: false },
@@ -135,11 +149,13 @@ export function DesignersTab() {
   const stats = useMemo(() => {
     let carrossel = 0;
     let estatico = 0;
+    let outros = 0;
     filteredRows.forEach((row) => {
-      if (row.categoria === 'Carrossel') carrossel += 1;
-      else if (row.categoria === 'Estático') estatico += 1;
+      if (row.categoria === 'Carrossel') carrossel += row.quantidade;
+      else if (row.categoria === 'Estático') estatico += row.quantidade;
+      else outros += row.quantidade;
     });
-    return { total: filteredRows.length, carrossel, estatico, outros: filteredRows.length - carrossel - estatico };
+    return { total: carrossel + estatico + outros, carrossel, estatico, outros };
   }, [filteredRows]);
 
   const clientChart = useMemo(() => {
@@ -147,13 +163,18 @@ export function DesignersTab() {
     filteredRows.forEach((row) => {
       const key = normalized(row.cliente);
       const bucket = map.get(key) ?? { name: row.cliente, total: 0 };
-      bucket.total += 1;
+      bucket.total += row.quantidade;
       map.set(key, bucket);
     });
     return [...map.values()].sort((a, b) => b.total - a.total || a.name.localeCompare(b.name, 'pt-BR'));
   }, [filteredRows]);
 
-  const chartOptions = useMemo(() => buildClientOptions(clientChart), [clientChart]);
+  function selectClientFromChart(name: string) {
+    setCliente(name);
+    setDetailsOpen(true);
+  }
+
+  const chartOptions = useMemo(() => buildClientOptions(clientChart, selectClientFromChart), [clientChart]);
   const filtersActive = designer !== 'all' || cliente !== 'all' || tipo !== 'all' || month !== CURRENT_MONTH_VALUE;
 
   function clearFilters() {

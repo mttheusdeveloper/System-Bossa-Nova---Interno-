@@ -26,9 +26,22 @@ function pluralCaptacoes(value: number): string {
   return `${value} ${value === 1 ? 'captação' : 'captações'}`;
 }
 
-function buildMonthlyOptions(items: MonthBucket[]): ApexOptions {
+function buildMonthlyOptions(items: MonthBucket[], onSelect: (key: string) => void): ApexOptions {
   return {
-    chart: { type: 'bar', height: 280, background: 'transparent', toolbar: { show: false }, foreColor: '#9A9A9A', fontFamily: 'Roboto' },
+    chart: {
+      type: 'bar',
+      height: 280,
+      background: 'transparent',
+      toolbar: { show: false },
+      foreColor: '#9A9A9A',
+      fontFamily: 'Roboto',
+      events: {
+        dataPointSelection: (_event, _chartContext, config) => {
+          const item = config ? items[config.dataPointIndex] : undefined;
+          if (item) onSelect(item.key);
+        },
+      },
+    },
     series: [{ name: 'Atas', data: items.map((item) => item.total) }],
     colors: [ACCENT],
     plotOptions: { bar: { borderRadius: 6, borderRadiusApplication: 'end', columnWidth: '44%' } },
@@ -61,9 +74,22 @@ function buildEquipmentOptions(phone: number, camera: number): ApexOptions {
   };
 }
 
-function buildVideomakerOptions(items: VideomakerBucket[]): ApexOptions {
+function buildVideomakerOptions(items: VideomakerBucket[], onSelect: (name: string) => void): ApexOptions {
   return {
-    chart: { type: 'bar', height: Math.max(270, items.length * 64), background: 'transparent', toolbar: { show: false }, foreColor: '#9A9A9A', fontFamily: 'Roboto' },
+    chart: {
+      type: 'bar',
+      height: Math.max(270, items.length * 64),
+      background: 'transparent',
+      toolbar: { show: false },
+      foreColor: '#9A9A9A',
+      fontFamily: 'Roboto',
+      events: {
+        dataPointSelection: (_event, _chartContext, config) => {
+          const item = config ? items[config.dataPointIndex] : undefined;
+          if (item) onSelect(item.name);
+        },
+      },
+    },
     series: [{ name: 'Captações', data: items.map((item) => item.total) }],
     colors: [ACCENT],
     stroke: { show: false },
@@ -83,7 +109,13 @@ function buildVideomakerOptions(items: VideomakerBucket[]): ApexOptions {
   };
 }
 
-export function CaptacaoOverview({ rows }: { rows: AtaCaptacao[] }) {
+interface CaptacaoOverviewProps {
+  rows: AtaCaptacao[];
+  onSelectMonth: (key: string) => void;
+  onSelectVideomaker: (name: string) => void;
+}
+
+export function CaptacaoOverview({ rows, onSelectMonth, onSelectVideomaker }: CaptacaoOverviewProps) {
   const report = useMemo(() => {
     const monthMap = new Map<string, MonthBucket>();
     const makerMap = new Map<string, { name: string; total: number; clients: Map<string, string> }>();
@@ -132,9 +164,9 @@ export function CaptacaoOverview({ rows }: { rows: AtaCaptacao[] }) {
     };
   }, [rows]);
 
-  const monthlyOptions = useMemo(() => buildMonthlyOptions(report.months), [report.months]);
+  const monthlyOptions = useMemo(() => buildMonthlyOptions(report.months, onSelectMonth), [report.months]);
   const equipmentOptions = useMemo(() => buildEquipmentOptions(report.phone, report.camera), [report.camera, report.phone]);
-  const videomakerOptions = useMemo(() => buildVideomakerOptions(report.videomakers), [report.videomakers]);
+  const videomakerOptions = useMemo(() => buildVideomakerOptions(report.videomakers, onSelectVideomaker), [report.videomakers]);
 
   return (
     <div className="space-y-5">

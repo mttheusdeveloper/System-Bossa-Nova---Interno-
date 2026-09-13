@@ -5,7 +5,7 @@ import { Film, Table2, X } from 'lucide-react';
 import { ApexChartBox } from '../charts/ApexChartBox';
 import { baseAxis, baseGrid } from '../../lib/chartTheme';
 import { captacaoDateParts, formatDate, normalized } from '../../lib/captacaoFormat';
-import { fetchRelatorioEdicao, parseEdicaoName, type RelatorioEdicaoRow } from '../../lib/relatorioEdicao';
+import { extractEdicaoQuantidade, fetchRelatorioEdicao, parseEdicaoName, type RelatorioEdicaoRow } from '../../lib/relatorioEdicao';
 import { LoadingSkeleton } from '../shared/LoadingSkeleton';
 import { FilterSelect, type FilterOption } from '../shared/FilterSelect';
 import { OriginButton } from '../ui/origin-button';
@@ -21,10 +21,11 @@ const CURRENT_MONTH_VALUE = `${CURRENT_DATE.getFullYear()}-${String(CURRENT_DATE
 
 interface EnrichedRow extends RelatorioEdicaoRow {
   cliente: string;
+  quantidade: number;
 }
 
 function enrich(rows: RelatorioEdicaoRow[]): EnrichedRow[] {
-  return rows.map((row) => ({ ...row, cliente: parseEdicaoName(row.name) }));
+  return rows.map((row) => ({ ...row, cliente: parseEdicaoName(row.name), quantidade: extractEdicaoQuantidade(row.name) }));
 }
 
 function filterOptions(rows: EnrichedRow[], field: 'editor' | 'cliente'): FilterOption[] {
@@ -60,9 +61,22 @@ function monthOptions(rows: RelatorioEdicaoRow[]): FilterOption[] {
   return [...months.values()].sort((a, b) => b.sortValue - a.sortValue).map(({ value, label }) => ({ value, label }));
 }
 
-function buildEditorOptions(items: { name: string; total: number }[]): ApexOptions {
+function buildEditorOptions(items: { name: string; total: number }[], onSelect: (name: string) => void): ApexOptions {
   return {
-    chart: { type: 'bar', height: 280, background: 'transparent', toolbar: { show: false }, foreColor: '#9A9A9A', fontFamily: 'Roboto' },
+    chart: {
+      type: 'bar',
+      height: 280,
+      background: 'transparent',
+      toolbar: { show: false },
+      foreColor: '#9A9A9A',
+      fontFamily: 'Roboto',
+      events: {
+        dataPointSelection: (_event, _chartContext, config) => {
+          const item = config ? items[config.dataPointIndex] : undefined;
+          if (item) onSelect(item.name);
+        },
+      },
+    },
     series: [{ name: 'Registros', data: items.map((item) => item.total) }],
     colors: [ACCENT],
     plotOptions: { bar: { borderRadius: 6, borderRadiusApplication: 'end', columnWidth: '40%' } },
@@ -81,9 +95,22 @@ function buildEditorOptions(items: { name: string; total: number }[]): ApexOptio
   };
 }
 
-function buildClientOptions(items: { name: string; total: number }[]): ApexOptions {
+function buildClientOptions(items: { name: string; total: number }[], onSelect: (name: string) => void): ApexOptions {
   return {
-    chart: { type: 'bar', height: Math.max(280, items.length * 26), background: 'transparent', toolbar: { show: false }, foreColor: '#9A9A9A', fontFamily: 'Roboto' },
+    chart: {
+      type: 'bar',
+      height: Math.max(280, items.length * 26),
+      background: 'transparent',
+      toolbar: { show: false },
+      foreColor: '#9A9A9A',
+      fontFamily: 'Roboto',
+      events: {
+        dataPointSelection: (_event, _chartContext, config) => {
+          const item = config ? items[config.dataPointIndex] : undefined;
+          if (item) onSelect(item.name);
+        },
+      },
+    },
     series: [{ name: 'Vídeos', data: items.map((item) => item.total) }],
     colors: [ACCENT],
     stroke: { show: false },
@@ -158,14 +185,26 @@ export function EdicoesTab() {
     filteredRows.forEach((row) => {
       const key = normalized(row.cliente);
       const bucket = map.get(key) ?? { name: row.cliente, total: 0 };
-      bucket.total += 1;
+      bucket.total += row.quantidade;
       map.set(key, bucket);
     });
     return [...map.values()].sort((a, b) => b.total - a.total || a.name.localeCompare(b.name, 'pt-BR'));
   }, [filteredRows]);
 
-  const editorOptions = useMemo(() => buildEditorOptions(editorChart), [editorChart]);
-  const clientOptions = useMemo(() => buildClientOptions(clientChart), [clientChart]);
+  const totalVideos = useMemo(() => filteredRows.reduce((sum, row) => sum + row.quantidade, 0), [filteredRows]);
+
+  function selectEditorFromChart(name: string) {
+    setEditor(name);
+    setDetailsOpen(true);
+  }
+
+  function selectClientFromChart(name: string) {
+    setCliente(name);
+    setDetailsOpen(true);
+  }
+
+  const editorOptions = useMemo(() => buildEditorOptions(editorChart, selectEditorFromChart), [editorChart]);
+  const clientOptions = useMemo(() => buildClientOptions(clientChart, selectClientFromChart), [clientChart]);
   const concluidos = useMemo(() => filteredRows.filter((row) => normalized(row.status) === 'concluido').length, [filteredRows]);
   const filtersActive = editor !== 'all' || cliente !== 'all' || month !== CURRENT_MONTH_VALUE;
 
@@ -213,7 +252,7 @@ export function EdicoesTab() {
           </div>
 
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-            <SummaryCard label="Total de registros" value={filteredRows.length} />
+            <SummaryCard label="Total de registros" value={totalVideos} />
             <SummaryCard label="Concluídos" value={concluidos} accent />
             <SummaryCard label="Editores ativos" value={editorChart.length} />
             <SummaryCard label="Clientes atendidos" value={clientChart.length} />
