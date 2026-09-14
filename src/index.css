@@ -125,7 +125,6 @@ h1,h2,h3,h4,h5,h6,
   font-family:var(--font-heading);
 }
 .brand-name,
-.brand-subtitle,
 .nav-item,
 .nav-group-header,
 .pill,
@@ -2663,16 +2662,17 @@ table tbody tr:hover{background:var(--surface-2)}
   border-radius:.75rem;
 }
 .brand-logo-box{
-  width:44px;height:44px;border-radius:.5rem;
-  background:var(--accent);
+  width:60px;height:60px;border-radius:.5rem;
+  background:transparent;
+  border:0;
+  box-shadow:none;
   display:flex;align-items:center;justify-content:center;overflow:hidden;
-  flex:0 0 44px;
+  flex:0 0 60px;
 }
 .brand-logo-box img{
-  width:31px;height:35px;object-fit:contain;display:block;
+  width:48px;height:54px;object-fit:contain;display:block;
 }
 .brand-name{font-size:.98rem;font-weight:700;line-height:1.05;letter-spacing:-.02em;color:var(--text);}
-.brand-subtitle{font-size:.61rem;color:var(--muted);text-transform:uppercase;letter-spacing:.24em;margin-top:.26rem;font-weight:600;}
 
 /* Assistente IA flutuante */
 .ai-chat-toggle{

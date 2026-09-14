@@ -100,14 +100,11 @@ export function Sidebar() {
 
   return (
     <aside className="w-60 shrink-0 border-r border-[var(--border)] bg-[var(--surface)] px-4 py-6 hidden lg:flex flex-col gap-6 sticky top-0 h-screen">
-      <div className="flex items-center gap-3 px-2 brand-header">
+      <div className="flex flex-col items-center gap-4 px-2 text-center brand-header">
         <div className="brand-logo-box">
           <img src="/assets/logo-bossa.png" alt="Logo Bossa Nova" />
         </div>
-        <div>
-          <div className="brand-name">Bossa Nova</div>
-          <div className="brand-subtitle">Finance OS</div>
-        </div>
+        <div className="brand-name">Bossa Nova</div>
       </div>
 
       <nav className="flex flex-col gap-1">
