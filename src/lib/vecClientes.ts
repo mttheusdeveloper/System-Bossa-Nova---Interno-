@@ -54,7 +54,7 @@ const CLIENT_ALIAS_GROUPS: ReadonlyArray<readonly [string, readonly string[]]> =
   ['Ana Paula Vieira Silva', ['Ana Paula', 'Ana Paula (tráfego)', 'Ana Paula Vieira', 'Ana Paula Vieira Silva', 'Ana Paula Viera Silva']],
   ['Cantinho de Minas', ['Cantinho', 'Cantinho de Minas']],
   ['Casa de Repouso Relíquias', ['Casa de Repouso Relíquias', 'Casa de Repouso Reliquías', 'Relíquias']],
-  ['Clínica Pró Vida', ['Clínica Pró Vida', 'Clinica Pró Vida', 'Pró Vida']],
+  ['Clínica Pró Vida', ['Clínica Pró Vida', 'Clinica Pró Vida', 'Pró Vida', 'VG Saúde', 'VG Saude', 'VG Saude LTDA']],
   ['Dr. Rafael Leão e Golden Clinic', ['Dr Rafael', 'Dr. Rafael', 'Dr. Rafael Leão', 'Golden', 'Golden Clinic', 'Dr. Rafael Leão & Golden Clinic', 'Dr. Rafael Leão e Golden Clinic']],
   ['Dra. Beatriz Gomes', ['Dra. Beatriz Gomes', 'Dra. Bia Gomes', 'Dra Bia Gomes', 'Dra. Beatriz Leão']],
   ['Dra. Carla Rezende', ['Dra Carla', 'Dra. Carla', 'Dra Carla Rezende', 'Dra. Carla Rezende']],
