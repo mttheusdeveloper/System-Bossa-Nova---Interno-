@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { ChevronDown, LineChart, Cloud, FileText, Clapperboard, BarChart3, Table2, LogOut, type LucideIcon } from 'lucide-react';
 import { useDashboard } from '../../state/DashboardContext';
 import { useAuth } from '../../state/AuthContext';
@@ -10,6 +9,7 @@ interface NavGroup {
   key: string;
   label: string;
   icon: LucideIcon;
+  hidden?: boolean;
   items: { tab: Tab; label: string }[];
 }
 
@@ -18,6 +18,7 @@ interface NavStandalone {
   tab: Tab;
   label: string;
   icon: LucideIcon;
+  hidden?: boolean;
 }
 
 type NavEntry = NavGroup | NavStandalone;
@@ -38,12 +39,13 @@ const NAV_ENTRIES: NavEntry[] = [
     key: 'google',
     label: 'Google',
     icon: Cloud,
+    hidden: true,
     items: [
       { tab: 'drive', label: 'Google Drive' },
       { tab: 'sheets', label: 'Planilhas' },
     ],
   },
-  { type: 'item', tab: 'contratos', label: 'Contratos', icon: FileText },
+  { type: 'item', tab: 'contratos', label: 'Contratos', icon: FileText, hidden: true },
   {
     type: 'group',
     key: 'captacao',
@@ -110,7 +112,7 @@ export function Sidebar() {
 
       <nav className="flex flex-col gap-1">
         <div className="text-[.6rem] uppercase tracking-widest text-[var(--muted)] px-3 mb-1">Workspace</div>
-        {NAV_ENTRIES.map((entry) => {
+        {NAV_ENTRIES.filter((entry) => !entry.hidden).map((entry) => {
           if (entry.type === 'item') {
             const Icon = entry.icon;
             return (
@@ -136,25 +138,22 @@ export function Sidebar() {
                 </span>
                 <ChevronDown size={13} strokeWidth={2.5} className={`nav-group-chevron ${isOpen ? 'open' : ''}`} />
               </button>
-              <motion.div
-                initial={false}
-                animate={{ height: isOpen ? 'auto' : 0 }}
-                transition={{ duration: 0.2, ease: 'easeInOut' }}
-                className="overflow-hidden"
-              >
-                <ul className="nav-subgroup">
-                  {entry.items.map((item) => (
-                    <li key={item.tab}>
-                      <div
-                        className={`nav-item ${state.tab === item.tab ? 'active' : ''}`}
-                        onClick={() => dispatch({ type: 'SET_TAB', tab: item.tab })}
-                      >
-                        {item.label}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
+              <div className={`nav-subgroup-collapse ${isOpen ? 'open' : ''}`} aria-hidden={!isOpen}>
+                <div>
+                  <ul className="nav-subgroup">
+                    {entry.items.map((item) => (
+                      <li key={item.tab}>
+                        <div
+                          className={`nav-item ${state.tab === item.tab ? 'active' : ''}`}
+                          onClick={() => dispatch({ type: 'SET_TAB', tab: item.tab })}
+                        >
+                          {item.label}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
             </div>
           );
         })}

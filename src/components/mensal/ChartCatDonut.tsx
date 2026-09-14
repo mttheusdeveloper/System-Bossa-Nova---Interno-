@@ -52,7 +52,12 @@ export function ChartCatDonut({ dreContext }: { dreContext: DreContext }) {
           <ChartContainer config={chartConfig} className="[&_.recharts-text]:fill-background mx-auto aspect-square max-h-[320px]">
             <PieChart>
               <ChartTooltip
-                content={<ChartTooltipContent hideLabel formatter={(value) => <span className="font-mono font-medium">{fmtBRL2(Number(value))}</span>} />}
+                content={
+                  <ChartTooltipContent
+                    labelKey="key"
+                    formatter={(value) => <span className="font-mono font-medium">{fmtBRL2(Number(value))}</span>}
+                  />
+                }
               />
               <Pie data={chartData} dataKey="value" nameKey="key" innerRadius={30} radius={10} cornerRadius={8} paddingAngle={4}>
                 <LabelList dataKey="value" stroke="none" fontSize={11} fontWeight={600} fill="currentColor" formatter={(value: number) => fmtK(value)} />

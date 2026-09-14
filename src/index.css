@@ -649,6 +649,14 @@ table thead{backdrop-filter:none;}
 .nav-group-header:hover{color:var(--text);background:rgba(92,171,196,.1)}
 .nav-group-chevron{color:var(--muted);transition:transform .2s ease;}
 .nav-group-chevron.open{transform:rotate(180deg)}
+.nav-subgroup-collapse{
+  display:grid;
+  grid-template-rows:0fr;
+  opacity:0;
+  transition:grid-template-rows .2s ease-in-out,opacity .16s ease-in-out;
+}
+.nav-subgroup-collapse.open{grid-template-rows:1fr;opacity:1;}
+.nav-subgroup-collapse > div{min-height:0;overflow:hidden;}
 .nav-subgroup{
   list-style:none;margin:.15rem 0 .3rem 1.05rem;padding:0 0 0 .75rem;
   border-left:1px solid var(--border);
