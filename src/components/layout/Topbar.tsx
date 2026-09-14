@@ -15,7 +15,7 @@ const TITLES: Record<string, string> = {
 const SELF_MANAGED_TABS = new Set(['contratos', 'captacao', 'drive', 'sheets']);
 
 export function Topbar() {
-  const { state, dispatch, reload } = useDashboard();
+  const { state, reload } = useDashboard();
   const isMensal = state.tab === 'mensal';
 
   return (
@@ -26,21 +26,7 @@ export function Topbar() {
         {isMensal && <p>Acompanhe entradas, saídas, resultados e tendências da Bossa Nova.</p>}
       </div>
       <div className="flex items-center gap-2 flex-wrap justify-end">
-        {isMensal ? (
-          <>
-            <div className="mensal-view-switch">
-              <button type="button" className="active" onClick={() => dispatch({ type: 'SET_TAB', tab: 'mensal' })}>
-                Comparativo mensal
-              </button>
-              <button type="button" onClick={() => dispatch({ type: 'SET_TAB', tab: 'anual' })}>
-                Visão anual 2026
-              </button>
-            </div>
-            <button type="button" className="mensal-refresh-button" onClick={() => reload()}>
-              ↻ Atualizar dados
-            </button>
-          </>
-        ) : !SELF_MANAGED_TABS.has(state.tab) ? (
+        {!isMensal && !SELF_MANAGED_TABS.has(state.tab) ? (
           <>
             <button className="chip-btn" onClick={() => reload()}>
               ↻ Atualizar

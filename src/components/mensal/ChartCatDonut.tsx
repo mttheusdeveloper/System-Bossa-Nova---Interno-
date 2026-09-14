@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
-import { Cell, LabelList, Pie, PieChart } from 'recharts';
+import { Cell, Pie, PieChart } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '../ui/pie-chart';
-import { fmtBRL2, fmtK } from '../../lib/format';
+import { fmtBRL2 } from '../../lib/format';
 import { normKey } from '../../lib/parse';
 import { useModals } from '../../state/ModalsContext';
 import type { DreContext } from '../../types';
@@ -29,7 +29,7 @@ export function ChartCatDonut({ dreContext }: { dreContext: DreContext }) {
       while (usedKeys.has(key)) key = `${key}_${i}`;
       usedKeys.add(key);
       config[key] = { label: g.label, color: palette[i % palette.length] };
-      return { key, value: Math.abs(g.value), fill: `var(--color-${key})` };
+      return { key, value: Math.abs(g.value), rawValue: g.value, fill: `var(--color-${key})` };
     });
 
     return { chartData: data, chartConfig: config };
@@ -37,6 +37,7 @@ export function ChartCatDonut({ dreContext }: { dreContext: DreContext }) {
 
   const totalReceitas = dreContext.totalReceitas || chartData.reduce((acc, d) => acc + d.value, 0);
   const activeKey = selectedKey && chartData.some((item) => item.key === selectedKey) ? selectedKey : null;
+  const selectedItem = activeKey ? chartData.find((item) => item.key === activeKey) : null;
 
   function toggleHighlight(key: string) {
     setSelectedKey((current) => (current === key ? null : key));
@@ -90,13 +91,28 @@ export function ChartCatDonut({ dreContext }: { dreContext: DreContext }) {
                     />
                   );
                 })}
-                <LabelList dataKey="value" stroke="none" fontSize={11} fontWeight={600} fill="currentColor" formatter={(value: number) => fmtK(value)} />
               </Pie>
             </PieChart>
           </ChartContainer>
         ) : (
           <div className="flex h-[320px] items-center justify-center text-sm text-muted-foreground">Sem dados</div>
         )}
+
+        <div className="mt-2 flex min-h-12 items-center justify-center">
+          {selectedItem ? (
+            <div
+              className="flex items-center gap-3 rounded-lg border bg-[var(--surface-2)] px-4 py-2"
+              style={{ borderColor: chartConfig[selectedItem.key]?.color }}
+            >
+              <span className="h-2.5 w-2.5 shrink-0 rounded-[3px]" style={{ background: chartConfig[selectedItem.key]?.color }} />
+              <span className="text-xs font-medium text-[var(--muted-2)]">{chartConfig[selectedItem.key]?.label}</span>
+              <strong className="font-mono text-sm text-[var(--text)]">{fmtBRL2(selectedItem.rawValue)}</strong>
+            </div>
+          ) : (
+            <span className="text-[.68rem] text-[var(--muted)]">Clique em uma fatia ou legenda para ver os dados</span>
+          )}
+        </div>
+
         <div className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs">
           {chartData.map((d) => {
             const isActive = activeKey === d.key;

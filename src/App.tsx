@@ -22,7 +22,6 @@ import { KpiChartModal } from './components/modals/KpiChartModal';
 import { DreModal } from './components/modals/DreModal';
 import { AnnualSummaryModal } from './components/modals/AnnualSummaryModal';
 import { ContractDetailModal } from './components/modals/ContractDetailModal';
-import { AiChatWidget } from './components/ai/AiChatWidget';
 
 function DashboardShell() {
   const { state } = useDashboard();
@@ -50,7 +49,6 @@ function DashboardShell() {
       <DreModal />
       <AnnualSummaryModal />
       <ContractDetailModal />
-      <AiChatWidget />
     </div>
   );
 }

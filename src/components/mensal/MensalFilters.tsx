@@ -29,7 +29,7 @@ export function MensalFilters({ mensalDerived }: { mensalDerived: MensalDerived 
           <div className="kpi-label mb-1">
             Meses ativos <span className="text-[var(--muted)] normal-case">(clique p/ comparar)</span>
           </div>
-          <div className="flex gap-1 flex-wrap">
+          <div className="flex gap-2 flex-wrap">
             {mesesDisp.length ? (
               mesesDisp.map((key) => (
                 <OriginButton
@@ -47,7 +47,7 @@ export function MensalFilters({ mensalDerived }: { mensalDerived: MensalDerived 
           </div>
         </div>
 
-        <div className="h-10 w-px bg-[var(--border)] mx-1 hidden md:block" />
+        <div className="h-12 w-px bg-[var(--border)] mx-1 hidden md:block" />
 
         <CategorySelect value={cat} categories={categories} onChange={(value) => dispatch({ type: 'SET_CATEGORIA', value })} />
 

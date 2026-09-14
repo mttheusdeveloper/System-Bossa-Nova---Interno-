@@ -516,10 +516,10 @@ export function VecCustosTab() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid stroke="#27313A" vertical={false} />
-                <XAxis dataKey="label" tick={{ fill: '#89939F', fontSize: 9 }} axisLine={false} tickLine={false} />
-                <YAxis tickFormatter={(value: number) => value === 0 ? 'R$ 0' : `R$ ${(value / 1000).toFixed(0)} mil`} tick={{ fill: '#89939F', fontSize: 9 }} axisLine={false} tickLine={false} width={54} />
-                <Tooltip formatter={(value) => fmtBRL2(Number(value))} contentStyle={{ background: '#0E141A', border: '1px solid #2B3742', borderRadius: 8, fontSize: 10 }} />
-                <Legend verticalAlign="top" height={28} iconType="circle" iconSize={8} wrapperStyle={{ color: '#AAB4BF', fontSize: 9 }} />
+                <XAxis dataKey="label" tick={{ fill: '#A6B0BB', fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis tickFormatter={(value: number) => value === 0 ? 'R$ 0' : `R$ ${(value / 1000).toFixed(0)} mil`} tick={{ fill: '#A6B0BB', fontSize: 12 }} axisLine={false} tickLine={false} width={66} />
+                <Tooltip formatter={(value) => fmtBRL2(Number(value))} contentStyle={{ background: '#0E141A', border: '1px solid #2B3742', borderRadius: 8, fontSize: 12 }} />
+                <Legend verticalAlign="top" height={34} iconType="circle" iconSize={10} wrapperStyle={{ color: '#BAC3CC', fontSize: 12 }} />
                 <Line type="monotone" dataKey="limite" name="Custo máximo" stroke="#5CABC4" strokeWidth={2} dot={{ r: 3, fill: '#12181E', stroke: '#5CABC4', strokeWidth: 1 }} />
                 <Area type="monotone" dataKey="gasto" name="Gasto realizado" stroke="#A78BFA" strokeWidth={2} fill="url(#costSpentGradient)" dot={{ r: 3, fill: '#12181E', stroke: '#A78BFA', strokeWidth: 1 }} />
               </AreaChart>

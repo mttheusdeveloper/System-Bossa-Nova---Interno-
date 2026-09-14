@@ -21,6 +21,12 @@ export function TxModal() {
 
   const terms = normKey(search).split(/\s+/).filter(Boolean);
   const filtered = terms.length ? tx.items.filter((item) => terms.every((t) => modalRowHaystack(item).includes(t))) : tx.items;
+  const showEntradas = tx.items.some((item) => num(item.row[C.ent]) !== 0);
+  const showSaidas = tx.items.some((item) => num(item.row[C.sai]) !== 0);
+  const visibleHeadCells = tx.headCells.filter((_, index) => index < 5 || (index === 5 && showEntradas) || (index === 6 && showSaidas));
+  const visibleColSpan = 5 + Number(showEntradas) + Number(showSaidas);
+  const searchMovementFields =
+    showEntradas && showSaidas ? ', entradas ou saídas' : showEntradas ? ' ou entradas' : showSaidas ? ' ou saídas' : '';
 
   return (
     <ModalShell onBackdropClick={closeTx}>
@@ -40,7 +46,7 @@ export function TxModal() {
           </div>
         </div>
         <div className="modal-toolbar px-6 py-3 border-b border-[var(--border)] flex flex-wrap items-center gap-3">
-          <SearchInput label="Busque por data, mês, conta, categoria, descrição, entradas ou saídas" value={search} onChange={setSearch} />
+          <SearchInput label={`Busque por data, mês, conta, categoria, descrição${searchMovementFields}`} value={search} onChange={setSearch} />
           <span className="modal-filter-pill">
             {terms.length ? `Filtrando: ${filtered.length}/${tx.items.length}` : 'Pesquise em todas as colunas do pop-up'}
           </span>
@@ -49,17 +55,17 @@ export function TxModal() {
           <table className="w-full annual-summary-table">
             <thead className="bg-[var(--surface)] sticky top-0">
               <tr>
-                {tx.headCells.map((h) => (
+                {visibleHeadCells.map((h) => (
                   <th key={h}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filtered.length ? (
-                filtered.map((item, i) => <TxRow key={i} item={item} />)
+                filtered.map((item, i) => <TxRow key={i} item={item} showEntradas={showEntradas} showSaidas={showSaidas} />)
               ) : (
                 <tr>
-                  <td colSpan={tx.colSpan} className="text-center text-[var(--muted)] py-10">
+                  <td colSpan={visibleColSpan} className="text-center text-[var(--muted)] py-10">
                     {tx.emptyMsg}
                   </td>
                 </tr>
@@ -72,7 +78,7 @@ export function TxModal() {
   );
 }
 
-function TxRow({ item }: { item: TxModalItem }) {
+function TxRow({ item, showEntradas, showSaidas }: { item: TxModalItem; showEntradas: boolean; showSaidas: boolean }) {
   const r = item.row;
   const d = parseDate(r[C.data]);
   const mes = item._mes || '-';
@@ -90,8 +96,8 @@ function TxRow({ item }: { item: TxModalItem }) {
       <td>{String(r[C.conta] || '-')}</td>
       <td>{String(r[C.cat] || '-')}</td>
       <td className="modal-desc-cell">{String(r[C.desc] || '-')}</td>
-      <td className="text-right mono money-pos modal-money">{entrada ? fmtBRL2(entrada) : '-'}</td>
-      <td className="text-right mono money-neg modal-money">{saida ? fmtBRL2(saida) : '-'}</td>
+      {showEntradas && <td className="text-right mono money-pos modal-money">{entrada ? fmtBRL2(entrada) : '-'}</td>}
+      {showSaidas && <td className="text-right mono money-neg modal-money">{saida ? fmtBRL2(saida) : '-'}</td>}
     </tr>
   );
 }

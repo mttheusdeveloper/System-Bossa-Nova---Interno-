@@ -1855,24 +1855,24 @@ table tbody tr:hover{background:var(--surface-2)}
 .vec-cost-panel-note{
   margin-left:auto;
   color:#77838F;
-  font-size:7px;
+  font-size:10.5px;
   font-weight:500;
   white-space:nowrap;
 }
 .vec-cost-evolution,
-.vec-cost-categories{min-height:278px;}
+.vec-cost-categories{min-height:330px;}
 .vec-cost-evolution .vec-cost-panel-heading,
 .vec-cost-categories .vec-cost-panel-heading,
 .vec-cost-alerts .vec-cost-panel-heading{margin-bottom:10px;}
-.vec-cost-chart{height:218px;}
+.vec-cost-chart{height:270px;}
 .vec-cost-chart .recharts-legend-item-text{color:#9CA6B1 !important;}
 .vec-cost-chart .recharts-default-tooltip{box-shadow:0 14px 35px rgba(0,0,0,.32);}
 .vec-cost-categories .vec-cost-category-list{gap:0;}
 .vec-cost-categories .vec-cost-category-list > button{
   grid-template-columns:minmax(0,1fr) auto;
   gap:5px 10px;
-  min-height:57px;
-  padding:7px 0;
+  min-height:76px;
+  padding:11px 0;
   border:0;
   border-radius:6px;
   background:transparent;
@@ -1890,23 +1890,23 @@ table tbody tr:hover{background:var(--surface-2)}
   gap:4px;
 }
 .vec-cost-categories .vec-cost-category-list > button > div:nth-child(2){justify-content:flex-end;}
-.vec-cost-categories .vec-cost-category-list strong{color:#E7ECF1;font-size:8px;font-weight:650;}
-.vec-cost-categories .vec-cost-category-list div span{color:#8A95A0;font-size:7px;}
-.vec-cost-categories .vec-cost-category-track{grid-column:1/-1;height:5px;}
+.vec-cost-categories .vec-cost-category-list strong{color:#E7ECF1;font-size:12px;font-weight:650;}
+.vec-cost-categories .vec-cost-category-list div span{color:#A2ACB6;font-size:11px;}
+.vec-cost-categories .vec-cost-category-track{grid-column:1/-1;height:7px;}
 .vec-cost-categories .vec-cost-category-list > button > em{
   grid-column:1/-1;
   color:#75808C;
-  font-size:7px;
+  font-size:10.5px;
   font-style:normal;
 }
 .vec-cost-alerts{padding:14px;}
-.vec-cost-alert-grid{gap:6px 10px;}
+.vec-cost-alert-grid{gap:10px 12px;}
 .vec-cost-alert-grid > button{
   min-width:0;
-  min-height:36px;
+  min-height:56px;
   align-items:center;
-  gap:8px;
-  padding:5px 8px;
+  gap:11px;
+  padding:10px 12px;
   border-color:#2B3540;
   border-radius:7px;
   background:#151B22;
@@ -1916,23 +1916,23 @@ table tbody tr:hover{background:var(--surface-2)}
 .vec-cost-alert-grid > button:disabled:hover{border-color:#2B3540;background:#151B22;}
 .vec-cost-alert-grid > button > .vec-cost-alert-icon{
   display:inline-flex;
-  width:19px;
-  height:19px;
-  flex:0 0 19px;
+  width:28px;
+  height:28px;
+  flex:0 0 28px;
   align-items:center;
   justify-content:center;
   border-radius:5px;
   background:color-mix(in srgb,var(--alert-color) 13%,transparent);
   color:var(--alert-color);
 }
-.vec-cost-alert-grid > button > .vec-cost-alert-icon svg{width:9px;height:9px;}
+.vec-cost-alert-grid > button > .vec-cost-alert-icon svg{width:14px;height:14px;}
 .vec-cost-alert-grid > button .vec-cost-alert-copy{
   display:flex;
   min-width:0;
   flex:1;
-  flex-direction:row;
-  align-items:center;
-  gap:3px;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:4px;
   overflow:hidden;
 }
 .vec-cost-alert-grid > button .vec-cost-alert-copy strong,
@@ -1941,18 +1941,18 @@ table tbody tr:hover{background:var(--surface-2)}
   text-overflow:ellipsis;
   white-space:nowrap;
 }
-.vec-cost-alert-grid > button .vec-cost-alert-copy strong{flex:0 1 auto;color:#DCE3EA;font-size:7px;font-weight:600;}
-.vec-cost-alert-grid > button .vec-cost-alert-copy small{flex:1 1 auto;color:#97A1AC;font-size:7px;}
+.vec-cost-alert-grid > button .vec-cost-alert-copy strong{flex:0 1 auto;color:#DCE3EA;font-size:12px;font-weight:650;}
+.vec-cost-alert-grid > button .vec-cost-alert-copy small{flex:1 1 auto;color:#97A1AC;font-size:11px;line-height:1.35;}
 .vec-cost-alert-link{
   display:inline-flex;
   flex:0 0 auto;
   align-items:center;
   gap:2px;
   color:#87929D;
-  font-size:6px;
+  font-size:10px;
   white-space:nowrap;
 }
-.vec-cost-alert-link svg{width:8px;height:8px;}
+.vec-cost-alert-link svg{width:11px;height:11px;}
 .vec-cost-alert-grid > button:hover .vec-cost-alert-link{color:#5CC4E6;}
 .vec-cost-data-panel{margin-top:10px !important;}
 .vec-cost-data-toolbar{padding:13px 14px 9px;}
@@ -2401,25 +2401,25 @@ table tbody tr:hover{background:var(--surface-2)}
 }
 .mensal-page .monthly-filters-card .kpi-label{
   color:#98A2AE;
-  font-size:9px;
+  font-size:11px;
   font-weight:600;
 }
 .mensal-page .monthly-month-chip{
-  height:30px !important;
-  padding:0 12px !important;
+  height:36px !important;
+  padding:0 15px !important;
   border-color:#293440 !important;
   border-radius:6px !important;
   background:#202631 !important;
   color:#D5DCE4 !important;
-  font-size:10px !important;
-  font-weight:550 !important;
+  font-size:12px !important;
+  font-weight:600 !important;
 }
 .mensal-page .category-filter-shell{
-  flex:0 1 235px;
-  min-width:min(100%,220px);
+  flex:0 1 280px;
+  min-width:min(100%,250px);
 }
 .mensal-page .category-select > button{
-  height:32px !important;
+  height:38px !important;
   border-color:#293440 !important;
   border-radius:7px !important;
   background:#202631 !important;
@@ -2427,26 +2427,51 @@ table tbody tr:hover{background:var(--surface-2)}
 }
 .mensal-page .category-select > button > span:last-child{width:100%;}
 .mensal-page .category-select-main-icon{
-  width:16px;
-  height:16px;
-  flex-basis:16px;
+  width:19px;
+  height:19px;
+  flex-basis:19px;
   border:0;
   background:transparent;
   color:#5CC4E6;
-  font-size:9px;
+  font-size:11px;
 }
 .mensal-page .category-select-text{
-  font-size:10px;
-  font-weight:550;
+  font-size:12px;
+  font-weight:600;
 }
-.mensal-page .monthly-filters-card .chip-btn{
+.mensal-page .category-select-menu{
+  width:min(520px,calc(100vw - 34px));
+  max-height:500px;
+  padding:.85rem;
+}
+.mensal-page .category-select-search{
+  height:46px;
+  padding:0 .85rem;
+  margin-bottom:.7rem;
+}
+.mensal-page .category-select-search-icon{width:17px;height:17px;}
+.mensal-page .category-select-search input{font-size:14px;}
+.mensal-page .category-select-options{max-height:405px;gap:.3rem;}
+.mensal-page .category-select-options > button{
+  min-height:42px !important;
+  padding:.5rem .7rem !important;
+}
+.mensal-page .category-option-icon{
+  width:30px;
   height:30px;
-  padding:0 11px;
+  flex-basis:30px;
+  font-size:13px;
+}
+.mensal-page .category-option-label{font-size:13px;font-weight:650;}
+.mensal-page .category-option-check{width:13px;height:13px;}
+.mensal-page .monthly-filters-card .chip-btn{
+  height:36px;
+  padding:0 14px;
   border-color:#293440;
   border-radius:7px;
   background:#202631;
   color:#AEB7C2;
-  font-size:10px;
+  font-size:12px;
 }
 .mensal-page .mensal-kpi-grid{gap:14px;}
 .mensal-page .kpi-card{
