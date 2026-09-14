@@ -327,7 +327,7 @@ function FeedbackCoveragePanel({
           emptyText="Nenhum cliente respondeu ainda."
         />
         <CoverageList
-          title="Ainda sem resposta"
+          title="Não responderam"
           clients={coverage.missingClients}
           icon={<Clock3 className="h-4 w-4 text-[#FBBF24]" />}
           countTone="#FBBF24"
