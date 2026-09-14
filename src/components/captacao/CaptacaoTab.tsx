@@ -61,11 +61,13 @@ export function CaptacaoTab() {
   const [equipment, setEquipment] = useState('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [atasOpen, setAtasOpen] = useState(false);
+  const [chartScope, setChartScope] = useState<{ field: 'month' | 'videomaker'; value: string } | null>(null);
   const atasButtonRef = useRef<HTMLButtonElement>(null);
 
   const closeAtasModal = useCallback(() => {
     setAtasOpen(false);
     setExpandedId(null);
+    setChartScope(null);
     requestAnimationFrame(() => atasButtonRef.current?.focus());
   }, []);
 
@@ -133,6 +135,14 @@ export function CaptacaoTab() {
   }, [equipment, month, rows, search, videomaker]);
   const selectedAta = expandedId ? rows.find((row) => row.id === expandedId) || null : null;
 
+  // Clicar numa barra dos gráficos só recorta o que aparece dentro do
+  // pop-up de atas — não mexe nos filtros "Mês"/"Videomaker" da página.
+  const modalRows = useMemo(() => {
+    if (!chartScope) return filteredRows;
+    if (chartScope.field === 'month') return filteredRows.filter((row) => monthValue(row.data_captacao) === chartScope.value);
+    return filteredRows.filter((row) => row.videomaker === chartScope.value);
+  }, [filteredRows, chartScope]);
+
   const filtersActive = Boolean(search || month !== 'all' || videomaker !== 'all' || equipment !== 'all');
 
   function clearFilters() {
@@ -189,11 +199,11 @@ export function CaptacaoTab() {
           <CaptacaoOverview
             rows={filteredRows}
             onSelectMonth={(key) => {
-              setMonth(key);
+              setChartScope({ field: 'month', value: key });
               setAtasOpen(true);
             }}
             onSelectVideomaker={(name) => {
-              setVideomaker(name);
+              setChartScope({ field: 'videomaker', value: name });
               setAtasOpen(true);
             }}
           />
@@ -243,7 +253,8 @@ export function CaptacaoTab() {
                       Atas de captação
                     </h3>
                     <p className="text-xs text-[var(--muted)] mt-1">
-                      {filteredRows.length} {filteredRows.length === 1 ? 'registro encontrado' : 'registros encontrados'} — clique em “Ver” para abrir os detalhes.
+                      {modalRows.length} {modalRows.length === 1 ? 'registro encontrado' : 'registros encontrados'}
+                      {chartScope ? ` · ${chartScope.value}` : ''} — clique em “Ver” para abrir os detalhes.
                     </p>
                   </div>
                   <OriginButton
@@ -259,7 +270,7 @@ export function CaptacaoTab() {
                 <div className="min-h-0 flex-1 overflow-auto">
                   {rows.length === 0 ? (
                     <EmptyState text="Nenhuma captação cadastrada." />
-                  ) : filteredRows.length === 0 ? (
+                  ) : modalRows.length === 0 ? (
                     <EmptyState text="Nenhuma captação encontrada com esses filtros." />
                   ) : (
                     <table className="w-full min-w-[980px]">
@@ -275,7 +286,7 @@ export function CaptacaoTab() {
                         </tr>
                       </thead>
                       <tbody>
-                        {filteredRows.map((row) => (
+                        {modalRows.map((row) => (
                           <tr key={row.id}>
                             <td className="mono whitespace-nowrap text-[var(--muted-2)]">{formatDate(row.data_captacao)}</td>
                             <td className="font-semibold text-[var(--text)]">{row.empresa}</td>

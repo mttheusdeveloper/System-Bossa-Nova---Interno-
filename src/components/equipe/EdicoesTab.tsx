@@ -5,6 +5,7 @@ import { Film, Table2, X } from 'lucide-react';
 import { ApexChartBox } from '../charts/ApexChartBox';
 import { baseAxis, baseGrid } from '../../lib/chartTheme';
 import { captacaoDateParts, formatDate, normalized } from '../../lib/captacaoFormat';
+import { clientColors } from '../../lib/clientColors';
 import { extractEdicaoQuantidade, fetchRelatorioEdicao, parseEdicaoName, type RelatorioEdicaoRow } from '../../lib/relatorioEdicao';
 import { LoadingSkeleton } from '../shared/LoadingSkeleton';
 import { FilterSelect, type FilterOption } from '../shared/FilterSelect';
@@ -112,9 +113,9 @@ function buildClientOptions(items: { name: string; total: number }[], onSelect: 
       },
     },
     series: [{ name: 'Vídeos', data: items.map((item) => item.total) }],
-    colors: [ACCENT],
+    colors: clientColors(items.map((item) => item.name)),
     stroke: { show: false },
-    plotOptions: { bar: { horizontal: true, borderRadius: 4, borderRadiusApplication: 'end', barHeight: '58%' } },
+    plotOptions: { bar: { horizontal: true, borderRadius: 4, borderRadiusApplication: 'end', barHeight: '58%', distributed: true } },
     fill: { opacity: 0.92 },
     dataLabels: { enabled: false },
     grid: baseGrid,
@@ -138,6 +139,7 @@ export function EdicoesTab() {
   const [month, setMonth] = useState(CURRENT_MONTH_VALUE);
   const [cliente, setCliente] = useState('all');
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [chartScope, setChartScope] = useState<{ field: 'editor' | 'cliente'; value: string } | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -193,15 +195,27 @@ export function EdicoesTab() {
 
   const totalVideos = useMemo(() => filteredRows.reduce((sum, row) => sum + row.quantidade, 0), [filteredRows]);
 
+  // Clicar numa barra só recorta o que aparece dentro do pop-up — não mexe
+  // nos filtros da página (senão o usuário tem que lembrar de limpar depois).
   function selectEditorFromChart(name: string) {
-    setEditor(name);
+    setChartScope({ field: 'editor', value: name });
     setDetailsOpen(true);
   }
 
   function selectClientFromChart(name: string) {
-    setCliente(name);
+    setChartScope({ field: 'cliente', value: name });
     setDetailsOpen(true);
   }
+
+  function closeDetails() {
+    setDetailsOpen(false);
+    setChartScope(null);
+  }
+
+  const modalRows = useMemo(() => {
+    if (!chartScope) return filteredRows;
+    return filteredRows.filter((row) => row[chartScope.field] === chartScope.value);
+  }, [filteredRows, chartScope]);
 
   const editorOptions = useMemo(() => buildEditorOptions(editorChart, selectEditorFromChart), [editorChart]);
   const clientOptions = useMemo(() => buildClientOptions(clientChart, selectClientFromChart), [clientChart]);
@@ -284,7 +298,7 @@ export function EdicoesTab() {
 
           {detailsOpen &&
             createPortal(
-              <ModalShell onBackdropClick={() => setDetailsOpen(false)}>
+              <ModalShell onBackdropClick={closeDetails}>
                 <div
                   id="edicoes-details-dialog"
                   role="dialog"
@@ -299,21 +313,22 @@ export function EdicoesTab() {
                         Registros detalhados
                       </h3>
                       <p className="text-xs text-[var(--muted)] mt-1">
-                        {filteredRows.length} {filteredRows.length === 1 ? 'registro encontrado' : 'registros encontrados'}
+                        {modalRows.length} {modalRows.length === 1 ? 'registro encontrado' : 'registros encontrados'}
+                        {chartScope ? ` · ${chartScope.value}` : ''}
                       </p>
                     </div>
                     <OriginButton
                       autoFocus
                       aria-label="Fechar registros detalhados"
                       className="h-9 w-9 shrink-0 rounded-lg p-0 [--ic-foreground:#fff]"
-                      onClick={() => setDetailsOpen(false)}
+                      onClick={closeDetails}
                     >
                       <X className="h-4 w-4" />
                     </OriginButton>
                   </div>
 
                   <div className="min-h-0 flex-1 overflow-auto">
-                    {filteredRows.length === 0 ? (
+                    {modalRows.length === 0 ? (
                       <div className="p-12 text-center text-sm text-[var(--muted-2)]">Nenhum registro encontrado com esses filtros.</div>
                     ) : (
                       <table className="w-full min-w-[780px]">
@@ -327,7 +342,7 @@ export function EdicoesTab() {
                           </tr>
                         </thead>
                         <tbody>
-                          {filteredRows.map((row) => (
+                          {modalRows.map((row) => (
                             <tr key={row.id}>
                               <td className="mono whitespace-nowrap text-[var(--muted-2)]">{row.datainicio ? formatDate(row.datainicio) : '—'}</td>
                               <td className="font-semibold text-[var(--text)] whitespace-nowrap">{row.cliente}</td>

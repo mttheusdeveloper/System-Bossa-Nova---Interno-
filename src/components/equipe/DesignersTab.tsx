@@ -5,13 +5,13 @@ import { PenTool, Table2, X } from 'lucide-react';
 import { ApexChartBox } from '../charts/ApexChartBox';
 import { baseAxis, baseGrid } from '../../lib/chartTheme';
 import { captacaoDateParts, formatDate, normalized } from '../../lib/captacaoFormat';
+import { clientColors } from '../../lib/clientColors';
 import { fetchRelatorioDesign, parseDesignName, type DesignCategoria, type RelatorioDesignRow } from '../../lib/relatorioDesign';
 import { LoadingSkeleton } from '../shared/LoadingSkeleton';
 import { FilterSelect, type FilterOption } from '../shared/FilterSelect';
 import { OriginButton } from '../ui/origin-button';
 import { ModalShell } from '../modals/ModalShell';
 
-const ACCENT = '#5CABC4';
 const MONTH_NAMES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
@@ -87,9 +87,9 @@ function buildClientOptions(items: { name: string; total: number }[], onSelect: 
       },
     },
     series: [{ name: 'Artes', data: items.map((item) => item.total) }],
-    colors: [ACCENT],
+    colors: clientColors(items.map((item) => item.name)),
     stroke: { show: false },
-    plotOptions: { bar: { horizontal: true, borderRadius: 4, borderRadiusApplication: 'end', barHeight: '58%' } },
+    plotOptions: { bar: { horizontal: true, borderRadius: 4, borderRadiusApplication: 'end', barHeight: '58%', distributed: true } },
     fill: { opacity: 0.92 },
     dataLabels: { enabled: false },
     grid: baseGrid,
@@ -114,6 +114,7 @@ export function DesignersTab() {
   const [cliente, setCliente] = useState('all');
   const [tipo, setTipo] = useState('all');
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [chartCliente, setChartCliente] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -169,10 +170,22 @@ export function DesignersTab() {
     return [...map.values()].sort((a, b) => b.total - a.total || a.name.localeCompare(b.name, 'pt-BR'));
   }, [filteredRows]);
 
+  // Clicar numa barra só recorta o que aparece dentro do pop-up — não mexe
+  // no filtro "Cliente" da página (senão o usuário tem que lembrar de limpar).
   function selectClientFromChart(name: string) {
-    setCliente(name);
+    setChartCliente(name);
     setDetailsOpen(true);
   }
+
+  function closeDetails() {
+    setDetailsOpen(false);
+    setChartCliente(null);
+  }
+
+  const modalRows = useMemo(() => {
+    if (!chartCliente) return filteredRows;
+    return filteredRows.filter((row) => row.cliente === chartCliente);
+  }, [filteredRows, chartCliente]);
 
   const chartOptions = useMemo(() => buildClientOptions(clientChart, selectClientFromChart), [clientChart]);
   const filtersActive = designer !== 'all' || cliente !== 'all' || tipo !== 'all' || month !== CURRENT_MONTH_VALUE;
@@ -246,7 +259,7 @@ export function DesignersTab() {
 
           {detailsOpen &&
             createPortal(
-              <ModalShell onBackdropClick={() => setDetailsOpen(false)}>
+              <ModalShell onBackdropClick={closeDetails}>
                 <div
                   id="designers-details-dialog"
                   role="dialog"
@@ -261,21 +274,22 @@ export function DesignersTab() {
                         Registros detalhados
                       </h3>
                       <p className="text-xs text-[var(--muted)] mt-1">
-                        {filteredRows.length} {filteredRows.length === 1 ? 'registro encontrado' : 'registros encontrados'}
+                        {modalRows.length} {modalRows.length === 1 ? 'registro encontrado' : 'registros encontrados'}
+                        {chartCliente ? ` · ${chartCliente}` : ''}
                       </p>
                     </div>
                     <OriginButton
                       autoFocus
                       aria-label="Fechar registros detalhados"
                       className="h-9 w-9 shrink-0 rounded-lg p-0 [--ic-foreground:#fff]"
-                      onClick={() => setDetailsOpen(false)}
+                      onClick={closeDetails}
                     >
                       <X className="h-4 w-4" />
                     </OriginButton>
                   </div>
 
                   <div className="min-h-0 flex-1 overflow-auto">
-                    {filteredRows.length === 0 ? (
+                    {modalRows.length === 0 ? (
                       <div className="p-12 text-center text-sm text-[var(--muted-2)]">Nenhum registro encontrado com esses filtros.</div>
                     ) : (
                       <table className="w-full min-w-[900px]">
@@ -290,7 +304,7 @@ export function DesignersTab() {
                           </tr>
                         </thead>
                         <tbody>
-                          {filteredRows.map((row) => (
+                          {modalRows.map((row) => (
                             <tr key={row.id}>
                               <td className="mono whitespace-nowrap text-[var(--muted-2)]">{row.datainicio ? formatDate(row.datainicio) : '—'}</td>
                               <td className="font-semibold text-[var(--text)] whitespace-nowrap">{row.cliente}</td>
