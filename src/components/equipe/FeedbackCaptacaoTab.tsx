@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { ApexOptions } from 'apexcharts';
-import { MessageSquareText, Table2, X } from 'lucide-react';
+import { CheckCircle2, Clock3, MessageSquareText, Table2, X } from 'lucide-react';
 import { ApexChartBox } from '../charts/ApexChartBox';
 import { baseAxis, baseGrid } from '../../lib/chartTheme';
 import { fetchRespostasPesquisa, type RespostaPesquisa } from '../../lib/respostasPesquisa';
+import { fetchAtasCaptacao, type AtaCaptacao } from '../../lib/captacoes';
+import { captacaoDateParts } from '../../lib/captacaoFormat';
+import { buildFeedbackCoverage } from '../../lib/feedbackCoverage';
 import { LoadingSkeleton } from '../shared/LoadingSkeleton';
 import { FilterSelect, type FilterOption } from '../shared/FilterSelect';
 import { OriginButton } from '../ui/origin-button';
@@ -23,25 +26,36 @@ function monthValue(iso: string): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 }
 
-function monthOptions(rows: RespostaPesquisa[]): FilterOption[] {
+function monthOptions(rows: RespostaPesquisa[], captacoes: AtaCaptacao[]): FilterOption[] {
   const months = new Map<string, FilterOption & { sortValue: number }>();
-  months.set(CURRENT_MONTH_VALUE, {
-    value: CURRENT_MONTH_VALUE,
-    label: `${MONTH_NAMES[CURRENT_DATE.getMonth()]} de ${CURRENT_DATE.getFullYear()}`,
-    sortValue: CURRENT_DATE.getFullYear() * 100 + CURRENT_DATE.getMonth() + 1,
-  });
+
+  function addMonth(year: number, month: number) {
+    const value = `${year}-${String(month).padStart(2, '0')}`;
+    months.set(value, {
+      value,
+      label: `${MONTH_NAMES[month - 1]} de ${year}`,
+      sortValue: year * 100 + month,
+    });
+  }
+
+  addMonth(CURRENT_DATE.getFullYear(), CURRENT_DATE.getMonth() + 1);
 
   rows.forEach((row) => {
     const date = new Date(row.created_at);
-    const value = monthValue(row.created_at);
-    months.set(value, {
-      value,
-      label: `${MONTH_NAMES[date.getMonth()]} de ${date.getFullYear()}`,
-      sortValue: date.getFullYear() * 100 + date.getMonth() + 1,
-    });
+    if (!Number.isNaN(date.getTime())) addMonth(date.getFullYear(), date.getMonth() + 1);
+  });
+
+  captacoes.forEach((row) => {
+    const parts = captacaoDateParts(row.data_captacao);
+    if (parts) addMonth(parts.year, parts.month);
   });
 
   return [...months.values()].sort((a, b) => b.sortValue - a.sortValue).map(({ value, label }) => ({ value, label }));
+}
+
+function captacaoMonthValue(value: string): string | null {
+  const parts = captacaoDateParts(value);
+  return parts ? `${parts.year}-${String(parts.month).padStart(2, '0')}` : null;
 }
 
 function empresaOptions(rows: RespostaPesquisa[]): FilterOption[] {
@@ -88,6 +102,7 @@ function buildNotasOptions(medias: { captacao: number; videomaker: number; equip
 
 export function FeedbackCaptacaoTab() {
   const [rows, setRows] = useState<RespostaPesquisa[]>([]);
+  const [captacoes, setCaptacoes] = useState<AtaCaptacao[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [month, setMonth] = useState(CURRENT_MONTH_VALUE);
@@ -98,7 +113,9 @@ export function FeedbackCaptacaoTab() {
     setLoading(true);
     setError(null);
     try {
-      setRows(await fetchRespostasPesquisa());
+      const [respostasResult, captacoesResult] = await Promise.all([fetchRespostasPesquisa(), fetchAtasCaptacao()]);
+      setRows(respostasResult);
+      setCaptacoes(captacoesResult);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Não foi possível carregar as respostas da pesquisa.');
     } finally {
@@ -110,7 +127,7 @@ export function FeedbackCaptacaoTab() {
     void load();
   }, [load]);
 
-  const months = useMemo(() => monthOptions(rows), [rows]);
+  const months = useMemo(() => monthOptions(rows, captacoes), [captacoes, rows]);
   const empresas = useMemo(() => empresaOptions(rows), [rows]);
 
   const filteredRows = useMemo(() => {
@@ -131,6 +148,23 @@ export function FeedbackCaptacaoTab() {
   );
 
   const comentarios = useMemo(() => filteredRows.filter((row) => (row.melhorias || '').trim()), [filteredRows]);
+  const coverageCaptacoes = useMemo(
+    () => captacoes.filter((row) => month === 'all' || captacaoMonthValue(row.data_captacao) === month),
+    [captacoes, month],
+  );
+  const coverageResponses = useMemo(
+    () => rows.filter((row) => month === 'all' || monthValue(row.created_at) === month),
+    [month, rows],
+  );
+  const coverage = useMemo(
+    () => buildFeedbackCoverage(coverageCaptacoes, coverageResponses),
+    [coverageCaptacoes, coverageResponses],
+  );
+  const coveragePeriod = month === 'all' ? 'Todo o histórico' : months.find((option) => option.value === month)?.label || month;
+  const coverageDescription =
+    month === 'all'
+      ? `${coveragePeriod}: comparação entre todas as atas de captação e todas as respostas recebidas.`
+      : `${coveragePeriod}: comparação entre as atas e as respostas recebidas no mesmo mês.`;
 
   const chartOptions = useMemo(() => buildNotasOptions(medias), [medias]);
   const filtersActive = month !== CURRENT_MONTH_VALUE || empresa !== 'all';
@@ -147,7 +181,7 @@ export function FeedbackCaptacaoTab() {
         <p className="text-xs text-[var(--muted-2)] mt-1">Acompanhe as notas e comentários da pesquisa de satisfação.</p>
       </div>
 
-      {loading && rows.length === 0 ? (
+      {loading && rows.length === 0 && captacoes.length === 0 ? (
         <LoadingSkeleton label="Carregando respostas da pesquisa…" />
       ) : error ? (
         <div className="card p-8 text-center">
@@ -182,6 +216,8 @@ export function FeedbackCaptacaoTab() {
             <SummaryCard label="Nota média · Videomaker" value={medias.videomaker.toFixed(1)} tone={CATEGORIA_CORES.videomaker} />
             <SummaryCard label="Nota média · Equipe" value={medias.equipe.toFixed(1)} tone={CATEGORIA_CORES.equipe} />
           </div>
+
+          <FeedbackCoveragePanel coverage={coverage} description={coverageDescription} />
 
           <div className="card p-5">
             <h3 className="font-semibold tracking-[-0.025em] mb-3">Notas médias por categoria</h3>
@@ -257,6 +293,105 @@ export function FeedbackCaptacaoTab() {
         </>
       )}
     </section>
+  );
+}
+
+function FeedbackCoveragePanel({
+  coverage,
+  description,
+}: {
+  coverage: ReturnType<typeof buildFeedbackCoverage>;
+  description: string;
+}) {
+  return (
+    <div className="card p-5 sm:p-6 space-y-5">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <h3 className="font-semibold tracking-[-0.025em]">Cobertura do feedback</h3>
+          <p className="text-xs text-[var(--muted-2)] mt-1">{description}</p>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 sm:min-w-[360px]">
+          <CoverageMetric label="Clientes" value={coverage.totalClients} />
+          <CoverageMetric label="Responderam" value={coverage.respondedClients.length} tone="#34D399" />
+          <CoverageMetric label="Faltam" value={coverage.missingClients.length} tone="#FBBF24" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <CoverageList
+          title="Já responderam"
+          clients={coverage.respondedClients}
+          icon={<CheckCircle2 className="h-4 w-4 text-[#34D399]" />}
+          countTone="#34D399"
+          emptyText="Nenhum cliente respondeu ainda."
+        />
+        <CoverageList
+          title="Ainda sem resposta"
+          clients={coverage.missingClients}
+          icon={<Clock3 className="h-4 w-4 text-[#FBBF24]" />}
+          countTone="#FBBF24"
+          emptyText="Todos os clientes já responderam."
+        />
+      </div>
+
+      {coverage.unmatchedRespondents.length > 0 && (
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-4 py-3 text-xs text-[var(--muted-2)]">
+          <span className="font-medium text-[var(--text)]">Respostas sem ata correspondente:</span>{' '}
+          {coverage.unmatchedRespondents.join(', ')}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CoverageMetric({ label, value, tone }: { label: string; value: number; tone?: string }) {
+  return (
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-3 py-3 text-center">
+      <strong className="block text-xl leading-none tracking-[-0.04em]" style={{ color: tone || 'var(--text)' }}>
+        {value}
+      </strong>
+      <span className="mt-1.5 block text-[.68rem] text-[var(--muted-2)]">{label}</span>
+    </div>
+  );
+}
+
+function CoverageList({
+  title,
+  clients,
+  icon,
+  countTone,
+  emptyText,
+}: {
+  title: string;
+  clients: string[];
+  icon: React.ReactNode;
+  countTone: string;
+  emptyText: string;
+}) {
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
+      <div className="mb-3 flex items-center gap-2">
+        {icon}
+        <h4 className="text-sm font-semibold">{title}</h4>
+        <span className="ml-auto text-sm font-semibold" style={{ color: countTone }}>
+          {clients.length}
+        </span>
+      </div>
+
+      {clients.length > 0 ? (
+        <ul className="grid grid-cols-1 gap-x-5 gap-y-2 sm:grid-cols-2">
+          {clients.map((client) => (
+            <li key={client} className="flex items-start gap-2 text-xs leading-5 text-[var(--muted-2)]">
+              <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: countTone }} />
+              <span>{client}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-xs text-[var(--muted-2)]">{emptyText}</p>
+      )}
+    </div>
   );
 }
 

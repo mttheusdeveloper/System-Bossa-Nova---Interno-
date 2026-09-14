@@ -49,7 +49,10 @@ const NAV_ENTRIES: NavEntry[] = [
     key: 'captacao',
     label: 'Captação',
     icon: Clapperboard,
-    items: [{ tab: 'captacao', label: 'Relatório de captações' }],
+    items: [
+      { tab: 'captacao', label: 'Relatório de captações' },
+      { tab: 'feedback-captacao', label: 'Feedback Captação' },
+    ],
   },
   {
     type: 'group',
@@ -59,7 +62,6 @@ const NAV_ENTRIES: NavEntry[] = [
     items: [
       { tab: 'designers', label: 'Relatório Designers' },
       { tab: 'edicoes', label: 'Relatório Edições' },
-      { tab: 'feedback-captacao', label: 'Feedback Captação' },
     ],
   },
   {
