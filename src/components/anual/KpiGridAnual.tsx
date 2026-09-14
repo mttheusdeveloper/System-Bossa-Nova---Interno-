@@ -11,25 +11,57 @@ export function KpiGridAnual({ kpis }: { kpis: AnualChartsData['kpis'] }) {
   const { openKpiChart } = useModals();
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
-      <KpiCard icon="$" label="Fat. Bruto" value={<AnimatedNumber value={kpis.totFB} formatter={fmtBRL} />} tone="orange" />
+    <div className="anual-kpi-grid grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+      <KpiCard
+        icon="$"
+        label="Fat. Bruto"
+        value={<AnimatedNumber value={kpis.totFB} formatter={fmtBRL} />}
+        tone="orange"
+        pillText="2026"
+        sub={<p className="text-[.7rem] text-white/70 mt-1">Faturamento bruto acumulado</p>}
+      />
       <KpiCard
         icon="$"
         label="Caixa"
         value={<AnimatedNumber value={kpis.totFL} formatter={fmtBRL} />}
         tone="info"
+        pillText="ACUMULADO"
+        sub={<p className="text-[.7rem] text-white/70 mt-1">Faturamento líquido do ano</p>}
         onClick={() => openKpiChart('saldo')}
       />
-      <KpiCard icon="▲" label="EBITDA" value={<AnimatedNumber value={kpis.totEB} formatter={fmtBRL} />} tone={kpis.totEB >= 0 ? 'positive' : 'negative'} />
+      <KpiCard
+        icon="▲"
+        label="EBITDA"
+        value={<AnimatedNumber value={kpis.totEB} formatter={fmtBRL} />}
+        tone={kpis.totEB >= 0 ? 'positive' : 'negative'}
+        pillText="2026"
+        sub={<p className="text-[.7rem] text-white/70 mt-1">EBITDA acumulado</p>}
+      />
       <KpiCard
         icon="%"
         label="Lucratividade Média"
         value={<AnimatedNumber value={kpis.lucroAvg} formatter={fmtPct} />}
         tone={kpis.lucroAvg >= LUCRO_META ? 'positive' : 'negative'}
+        pillText="MÉDIA ANUAL"
+        sub={<p className="text-[.7rem] text-white/70 mt-1">Meta {String(LUCRO_META).replace('.', ',')}%</p>}
         onClick={() => openKpiChart('anualLucratividade')}
       />
-      <KpiCard icon="↗" label="Investimentos" value={<AnimatedNumber value={kpis.totInv} formatter={fmtBRL} />} tone="orange" />
-      <KpiCard icon="◌" label="Rendimento" value={<AnimatedNumber value={kpis.totRoi} formatter={fmtBRL} />} tone={kpis.totRoi >= 0 ? 'positive' : 'negative'} />
+      <KpiCard
+        icon="↗"
+        label="Investimentos"
+        value={<AnimatedNumber value={kpis.totInv} formatter={fmtBRL} />}
+        tone="orange"
+        pillText="2026"
+        sub={<p className="text-[.7rem] text-white/70 mt-1">Investido no ano</p>}
+      />
+      <KpiCard
+        icon="◌"
+        label="Rendimento"
+        value={<AnimatedNumber value={kpis.totRoi} formatter={fmtBRL} />}
+        tone={kpis.totRoi >= 0 ? 'positive' : 'negative'}
+        pillText="ROI"
+        sub={<p className="text-[.7rem] text-white/70 mt-1">Retorno acumulado</p>}
+      />
     </div>
   );
 }

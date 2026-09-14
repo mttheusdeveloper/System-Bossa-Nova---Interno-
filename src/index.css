@@ -2497,6 +2497,63 @@ table tbody tr:hover{background:var(--surface-2)}
   font-size:9px;
 }
 .mensal-page .apexcharts-gridline{stroke:#25303A !important;}
+
+/* Visão Anual: mesmo cartão de KPI escuro com selo colorido da Comparativo Mensal. */
+.anual-page .kpi-card{
+  min-height:156px;
+  overflow:hidden;
+  padding:17px 18px;
+  border:1px solid #29333E;
+  border-radius:12px;
+  background-color:#12171D !important;
+  background-image:none !important;
+  color:#E9EDF2;
+  box-shadow:0 12px 34px rgba(0,0,0,.1) !important;
+}
+.anual-page .kpi-card:hover{
+  border-color:#3A4653;
+  box-shadow:0 16px 38px rgba(0,0,0,.18) !important;
+}
+.anual-page .anual-kpi-grid{gap:14px;}
+.anual-page .anual-kpi-grid > .kpi-card:nth-child(1){--monthly-kpi:#5CABC4;--monthly-kpi-soft:rgba(92,171,196,.15);}
+.anual-page .anual-kpi-grid > .kpi-card:nth-child(2){--monthly-kpi:#4DBCE7;--monthly-kpi-soft:rgba(77,188,231,.15);}
+.anual-page .anual-kpi-grid > .kpi-card:nth-child(3){--monthly-kpi:#34D399;--monthly-kpi-soft:rgba(52,211,153,.15);}
+.anual-page .anual-kpi-grid > .kpi-card:nth-child(4){--monthly-kpi:#C06AD8;--monthly-kpi-soft:rgba(192,106,216,.15);}
+.anual-page .anual-kpi-grid > .kpi-card:nth-child(5){--monthly-kpi:#8FCB24;--monthly-kpi-soft:rgba(143,203,36,.16);}
+.anual-page .anual-kpi-grid > .kpi-card:nth-child(6){--monthly-kpi:#F5C518;--monthly-kpi-soft:rgba(245,197,24,.15);}
+.anual-page .kpi-card-icon{
+  width:25px;
+  height:25px;
+  border-radius:7px;
+  background:var(--monthly-kpi-soft);
+  color:var(--monthly-kpi);
+  font-size:11px;
+}
+.anual-page .kpi-card-pill{
+  padding:3px 7px;
+  border:1px solid color-mix(in srgb,var(--monthly-kpi) 42%,transparent);
+  background:var(--monthly-kpi-soft);
+  color:var(--monthly-kpi) !important;
+  font-size:7px;
+}
+.anual-page .kpi-card-label{
+  margin-top:3px;
+  margin-bottom:8px;
+  color:#AAB3BE !important;
+  font-size:9px;
+  font-weight:600;
+}
+.anual-page .kpi-card-value{
+  color:#34D399 !important;
+  font-size:23px;
+  font-weight:750;
+}
+.anual-page .kpi-card[data-tone="negative"] .kpi-card-value{color:#FB7185 !important;}
+.anual-page .kpi-card > p{
+  margin-top:7px;
+  color:#A7B0BB !important;
+  font-size:9px;
+}
 .mensal-page .apexcharts-text{fill:#7F8995 !important;}
 .mensal-page .apexcharts-legend-text{color:#C5CCD4 !important;}
 .mensal-page .mensal-chart-card{color:#E9EDF2;}

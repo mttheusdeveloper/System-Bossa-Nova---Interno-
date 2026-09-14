@@ -18,7 +18,7 @@ export function AnualTab() {
   const chartsData = useAnualChartsData(anualDerived, state.anualFilters);
 
   return (
-    <section className="space-y-6">
+    <section className="anual-page space-y-6">
       <AnualFilters />
       <KpiGridAnual kpis={chartsData.kpis} />
 
